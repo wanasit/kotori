@@ -1,7 +1,7 @@
 // Library version
 object Kotori {
     const val groupId = "com.github.wanasit.kotori"
-    const val name = ":kotori"
+    const val version = "0.0.1"
 }
 
 object Kotlin {

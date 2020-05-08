@@ -21,3 +21,25 @@ dependencies {
     testImplementation(Kotlin.Dependencies.test)
     testImplementation(Kotlin.Dependencies.testJunit)
 }
+
+publishing {
+    publications {
+        create<MavenPublication>(name) {
+            groupId = Kotori.groupId
+            version = Kotori.version
+
+            artifactId = name
+
+            from(components["java"])
+
+            pom {
+                licenses {
+                    license {
+                        name.set("MIT License")
+                        url.set("http://www.opensource.org/licenses/mit-license.php")
+                    }
+                }
+            }
+        }
+    }
+}
