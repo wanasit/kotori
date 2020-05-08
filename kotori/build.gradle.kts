@@ -22,12 +22,12 @@ dependencies {
     testImplementation(Kotlin.Dependencies.testJunit)
 }
 
+
 publishing {
     publications {
         create<MavenPublication>(name) {
             groupId = Kotori.groupId
             version = Kotori.version
-
             artifactId = name
 
             from(components["java"])
