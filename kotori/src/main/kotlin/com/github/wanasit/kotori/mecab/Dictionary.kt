@@ -10,7 +10,7 @@ import java.io.OutputStream
 import java.io.PrintWriter
 import java.nio.charset.Charset
 import java.nio.file.Files
-import java.nio.file.Path
+import java.nio.file.Paths
 
 /**
  *
@@ -30,7 +30,7 @@ object MeCabDictionary {
             charset: Charset = DEFAULT_CHARSET
     ) : Dictionary<MeCabTermEntry> {
 
-        val dictionaryDir = Path.of(dir);
+        val dictionaryDir = Paths.get(dir);
         checkArgument(Files.isDirectory(dictionaryDir));
 
         val termDictionary = MeCabTermDictionary.readFromDirectory(dir, charset);

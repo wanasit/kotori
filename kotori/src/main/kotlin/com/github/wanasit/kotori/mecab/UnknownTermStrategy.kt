@@ -5,7 +5,7 @@ import com.github.wanasit.kotori.UnknownTermExtractionStrategy
 import com.github.wanasit.kotori.utils.checkArgument
 import java.io.InputStream
 import java.nio.charset.Charset
-import java.nio.file.Path
+import java.nio.file.Paths
 
 data class ExtractedUnknownTermEntry(
         val unknownDictionaryEntry: MeCabTermEntry,
@@ -24,8 +24,8 @@ class MeCabUnknownTermExtractionStrategy(
         fun readFromDirectory(
                 dir: String, charset: Charset = MeCabDictionary.DEFAULT_CHARSET
         ) : MeCabUnknownTermExtractionStrategy = readFromInputStream(
-                Path.of(dir).resolve(MeCabDictionary.FILE_NAME_UNKNOWN_ENTRIES).toFile().inputStream(),
-                Path.of(dir).resolve(MeCabDictionary.FILE_NAME_CHARACTER_DEFINITION).toFile().inputStream(),
+                Paths.get(dir).resolve(MeCabDictionary.FILE_NAME_UNKNOWN_ENTRIES).toFile().inputStream(),
+                Paths.get(dir).resolve(MeCabDictionary.FILE_NAME_CHARACTER_DEFINITION).toFile().inputStream(),
                 charset)
 
         fun readFromInputStream(
