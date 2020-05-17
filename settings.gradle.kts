@@ -1,4 +1,3 @@
-
 rootProject.name = "kotori"
 
-include("kotori")
+include("kotori", "kotori-benchmark")

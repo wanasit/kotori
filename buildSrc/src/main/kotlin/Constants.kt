@@ -14,3 +14,8 @@ object Kotlin {
     }
 }
 
+object Data {
+
+    const val sudachiDictVersion = "sudachi-dictionary-20200330"
+    const val mecabIpadicVersion = "mecab-ipadic-2.7.0-20070801"
+}
