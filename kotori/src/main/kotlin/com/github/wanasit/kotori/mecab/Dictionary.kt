@@ -4,6 +4,7 @@ import com.github.wanasit.kotori.utils.CSVUtil
 import com.github.wanasit.kotori.utils.ResourceUtil.readResourceAsStream
 import com.github.wanasit.kotori.utils.checkArgument
 import com.github.wanasit.kotori.*
+import com.github.wanasit.kotori.core.OptimizedDictionary
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
@@ -149,13 +150,14 @@ class MeCabTermEntry(
     }
 }
 
+
+
 class MeCabConnectionCost(
-        private val table: Map<Pair<Int, Int>, Int>
+        val connectionCostArray: OptimizedDictionary.ConnectionCostArray
 ) : ConnectionCost {
 
-    override fun lookup(fromRightId: Int, toLeftId: Int): Int? {
-        return this.table[fromRightId to toLeftId]
-    }
+    override fun lookup(fromRightId: Int, toLeftId: Int): Int?
+            = connectionCostArray.lookup(fromRightId, toLeftId)
 
     companion object {
 
@@ -166,22 +168,25 @@ class MeCabConnectionCost(
         }
 
         private fun readFromInputStream(lines: List<String>) : MeCabConnectionCost {
-
-            val table: MutableMap<Pair<Int, Int>, Int> = mutableMapOf()
             val whiteSpaceRegEx = "\\s+".toRegex()
+
+            val cardinality = whiteSpaceRegEx.split(lines.get(0))
+            val fromIdCardinality = cardinality[0].toInt()
+            val toIdCardinality = cardinality[1].toInt()
+            val array = OptimizedDictionary.ConnectionCostArray(fromIdCardinality, toIdCardinality)
 
             lines.drop(1)
                     .forEach {
 
-                val values = whiteSpaceRegEx.split(it)
+                        val values = whiteSpaceRegEx.split(it)
 
-                val fromId = values[0].toInt()
-                val toId = values[1].toInt()
-                val cost = values[2].toInt()
-                table[fromId to toId] = cost
-            }
+                        val fromId = values[0].toInt()
+                        val toId = values[1].toInt()
+                        val cost = values[2].toInt()
+                        array.put(fromId, toId, cost)
+                    }
 
-            return MeCabConnectionCost(table);
+            return MeCabConnectionCost(array)
         }
     }
 }
