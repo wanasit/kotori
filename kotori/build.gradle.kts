@@ -20,8 +20,8 @@ dependencies {
 
     testImplementation(Kotlin.Dependencies.test)
     testImplementation(Kotlin.Dependencies.testJunit)
+    testImplementation(Kuromoji.Dependencies.Kuromoji_IPADIC)
 }
-
 
 publishing {
     publications {

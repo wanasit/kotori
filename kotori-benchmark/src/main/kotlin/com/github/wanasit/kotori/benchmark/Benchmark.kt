@@ -6,6 +6,7 @@ import com.github.wanasit.kotori.benchmark.Benchmark.measureTimeNanoWithOutput
 import com.github.wanasit.kotori.benchmark.Benchmark.runAndPrintTimeMillis
 import com.github.wanasit.kotori.benchmark.dataset.LivedoorNews
 import com.github.wanasit.kotori.benchmark.dataset.TextDatasetEntry
+import com.github.wanasit.kotori.benchmark.dataset.repeat
 
 object Benchmark {
     public inline fun <Output> measureTimeMillisWithOutput(block: () -> Output): Pair<Long, Output> {
@@ -30,7 +31,7 @@ object Benchmark {
 // ---------------------------------------------------------
 
 fun main() {
-    val dataset = LivedoorNews.loadDataset()
+    val dataset = LivedoorNews.loadDataset().repeat(3)
     val sudachi = runAndPrintTimeMillis("Loading Sudachi") {
         Tokenizers.loadSudachiTokenizer();
     }
@@ -59,11 +60,12 @@ fun runBenchmark(tokenizer: Tokenizer, dataset: Collection<TextDatasetEntry>) {
 
     println("Finished warming up: $warmUpTimeMillis ms ($warmUpTokenCount tokens extracted)")
 
-    for (epoch in 1..4) {
+    for (epoch in 1..5) {
         val (time, tokenCount) = measureTimeNanoWithOutput { runCountToken(tokenizer, dataset); }
 
         val perToken = time / tokenCount
-        println("Benchmark epoch $epoch: $perToken ns per token ($tokenCount tokens extracted)")
+        val perDocument = time / dataset.size
+        println("Benchmark epoch $epoch: $perDocument ns per document ($tokenCount tokens extracted, $perToken ns per token)")
     }
 }
 

@@ -12,7 +12,7 @@ repositories {
 dependencies {
     implementation(project(":kotori"))
 
-    implementation("com.atilika.kuromoji:kuromoji-ipadic:0.9.0")
+    implementation(Kuromoji.Dependencies.Kuromoji_IPADIC)
     implementation("com.worksap.nlp:sudachi:0.4.0")
     implementation("com.beust:klaxon:5.0.1")
 

@@ -39,6 +39,21 @@ class TestTokenizer{
         assertEquals("発表", tokens[7].text)
     }
 
+    @Test fun testEndWithSpaces() {
+        val tokens = tokenizer.tokenize("子は男の子2人。\t\n")
+
+        assertNotNull(tokens)
+        assertEquals(7, tokens.size)
+
+        assertEquals("子", tokens[0].text)
+        assertEquals("は", tokens[1].text)
+        assertEquals("男の子", tokens[2].text)
+        assertEquals("2", tokens[3].text)
+        assertEquals("人", tokens[4].text)
+        assertEquals("。", tokens[5].text)
+        assertEquals("\t\n", tokens[6].text)
+    }
+
     @Test fun testLongerText() {
         val tokens = tokenizer.tokenize("FMラジオ放送局、IT系での仕事人生活を経て、" +
                 "フリーランスモノ書き。好きなものは、クラゲ、ジュゴン、宇宙、絵本、コドモ、ヘンテコなもの。" +

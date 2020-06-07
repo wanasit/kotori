@@ -14,6 +14,14 @@ object Kotlin {
     }
 }
 
+object Kuromoji {
+    const val version = "0.9.0"
+    object Dependencies {
+        const val Kuromoji_IPADIC = "com.atilika.kuromoji:kuromoji-ipadic:$version"
+    }
+}
+
+
 object Data {
 
     const val sudachiDictVersion = "sudachi-dictionary-20200330"
