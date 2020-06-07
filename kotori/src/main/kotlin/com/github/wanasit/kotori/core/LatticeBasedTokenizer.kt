@@ -16,18 +16,18 @@ class LatticeBasedTokenizer(
 ) : Tokenizer {
 
     override fun tokenize(text: String): List<Token> {
-
-        val lattice = Lattice(dictionary.connection)
-
+        val lattice = Lattice(text.length)
         for (i in text.indices) {
             val termIDs = findTermsStartingAtIndex(text, i)
             termIDs.forEach {
                 val termEntry = dictionary.terms[it] ?: throw IllegalStateException()
                 lattice.addNode(termEntry, i)
             }
+        }
 
+        for (i in text.indices) {
             val unknownTerms = dictionary.unknownExtraction
-                    ?.extractUnknownTerms(text, i, termIDs.isEmpty())
+                    ?.extractUnknownTerms(text, i, !lattice.hasNodeStartAtIndex(i))
                     ?:emptyList()
 
             unknownTerms.forEach {
@@ -35,7 +35,7 @@ class LatticeBasedTokenizer(
             }
         }
 
-        val path = lattice.close(text.length)
+        val path = lattice.connectAndClose(dictionary.connection)
         return path?.map { LatticeBasedToken(it.termEntry.surfaceForm, it.location) } ?: emptyList()
     }
 

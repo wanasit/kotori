@@ -4,68 +4,90 @@ import com.github.wanasit.kotori.TermEntry
 
 data class LatticeNode(
         val location: Int,
-        val totalCost: Int,
         val termEntry: TermEntry,
-        val previousNode: LatticeNode?
+        var totalCost: Int?,
+        var previousNode: LatticeNode?
 )
 
-internal val BEGIN_NODE = LatticeNode(0, 0, object : TermEntry {
+internal val BEGIN_NODE = LatticeNode(0, object : TermEntry {
     override val surfaceForm = ""
     override val leftId = 0
     override val rightId = 0
     override val cost = 0
-}, null)
+}, 0, null)
 
 class Lattice(
-        private val connection: ConnectionCost
+        length: Int
 ) {
-    private val nodesAtEndIndex: MutableMap<Int, MutableList<LatticeNode>> = mutableMapOf()
+    private val nodesByStartIndex: Array<MutableList<LatticeNode>> = Array(length) { mutableListOf<LatticeNode>() }
+    private val nodesByEndIndex: Array<MutableList<LatticeNode>> = Array(length + 1) { mutableListOf<LatticeNode>() }
     init {
-        nodesAtEndIndex[0] = mutableListOf(BEGIN_NODE)
+        nodesByEndIndex[0].add(BEGIN_NODE)
     }
 
-    fun addNode(term: TermEntry, startIndex: Int,
-                endIndex: Int = startIndex + term.surfaceForm.length) {
-        
-        val (prevNode, prevCost) = findPossibleConnections(startIndex, term.leftId)
-                .minBy {(_, prevCost) -> prevCost}
-                ?: return // If there is not possible connection just ignore
+    fun hasNodeStartAtIndex(index: Int) : Boolean = nodesByStartIndex[index].isNotEmpty()
+    fun hasNodeEndAtIndex(index: Int) : Boolean = nodesByEndIndex[index].isNotEmpty()
 
-        nodesAtEndIndex.getOrPut(endIndex, { mutableListOf() })
-                .add(LatticeNode(
-                        location = startIndex,
-                        totalCost = prevCost + term.cost,
-                        termEntry = term,
-                        previousNode = prevNode))
+    fun addNode(term: TermEntry, startIndex: Int, endIndex: Int = startIndex + term.surfaceForm.length) {
+        val node = LatticeNode(location = startIndex, termEntry = term, totalCost = null, previousNode=null)
+        nodesByStartIndex[startIndex].add(node)
+        nodesByEndIndex[endIndex].add(node)
     }
 
-    fun close(endIndex: Int) : List<LatticeNode>? {
+    fun connectAndClose(connection: ConnectionCost) : List<LatticeNode>? {
+        for (i in 1 until nodesByEndIndex.size) {
+            nodesByEndIndex[i].forEach {
+                var minPrevNode: LatticeNode? = null
+                var minPrevCost = Int.MAX_VALUE
 
-        val (prevNode, _) = findPossibleConnections(endIndex, 0)
-                .minBy {(_, prevCost) -> prevCost}
+                for (prevNode in nodesByEndIndex[it.location]) {
+                    if (prevNode.totalCost == null) {
+                        continue
+                    }
 
-                ?: return null // If there is not possible connection just ignore
+                    val cost = connection.lookup(prevNode.termEntry.rightId, it.termEntry.leftId)
+                    if (cost != null) {
+                        val prevTotalCost = prevNode.totalCost!! + cost
+                        if (prevTotalCost < minPrevCost) {
+                            minPrevCost = prevTotalCost
+                            minPrevNode = prevNode
+                        }
+                    }
+                }
 
-        return transversePath(prevNode)
-    }
-
-    private fun findPossibleConnections(location: Int, leftId: Int) : Iterable<Pair<LatticeNode, Int>>{
-
-        val results: MutableList<Pair<LatticeNode, Int>> = mutableListOf()
-        nodesAtEndIndex[location]?.forEach {
-            val connectionCost = connection.lookup(it.termEntry.rightId, leftId)
-            if (connectionCost != null) {
-                val newTotalCost = it.totalCost + connectionCost
-                results.add(it to newTotalCost)
+                if (minPrevNode != null) {
+                    it.previousNode = minPrevNode
+                    it.totalCost = minPrevCost + it.termEntry.cost
+                }
             }
         }
 
-        return results
+
+        var minPrevNode: LatticeNode? = null
+        var minPrevCost = Int.MAX_VALUE
+
+        for (prevNode in nodesByEndIndex.last()) {
+            if (prevNode.totalCost == null) {
+                continue
+            }
+
+            val connectionCost = connection.lookup(prevNode.termEntry.rightId, 0)
+            if (connectionCost != null) {
+                val prevTotalCost = prevNode.totalCost!! + connectionCost
+                if (prevTotalCost < minPrevCost) {
+                    minPrevCost = prevTotalCost
+                    minPrevNode = prevNode
+                }
+            }
+        }
+
+        return minPrevNode?.transverse() ?: emptyList()
     }
 
-    private fun transversePath(node: LatticeNode) : List<LatticeNode> {
+    private fun LatticeNode.transverse() : List<LatticeNode> {
+
         val path = mutableListOf<LatticeNode>()
-        var currentNode: LatticeNode = node
+        var currentNode: LatticeNode = this
         while (currentNode.previousNode != null) {
             path.add(currentNode)
             currentNode = currentNode.previousNode!!
