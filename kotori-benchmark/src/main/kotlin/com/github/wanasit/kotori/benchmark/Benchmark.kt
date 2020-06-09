@@ -44,7 +44,7 @@ fun main() {
         Tokenizers.loadKuromojiIpadicTokenizer();
     }
 
-    runBenchmark(sudachi, dataset)
+    //runBenchmark(sudachi, dataset)
     runBenchmark(kuromoji, dataset)
     runBenchmark(kotori, dataset)
 }

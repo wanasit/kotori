@@ -1,9 +1,5 @@
 package com.github.wanasit.kotori.ahocorasick
 
-interface MutableDFA : DFA {
-    fun put(vararg inputSeq: Input) : State;
-    fun getTransition(state: State) : Map<Input, State>
-}
 
 class HashMapTrie : MutableDFA {
     private var nonRootStateCount = 0;

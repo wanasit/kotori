@@ -4,9 +4,9 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class TestTokenizer{
+private val tokenizer = Tokenizer.createDefaultTokenizer()
 
-    private val tokenizer = Tokenizer.createDefaultTokenizer()
+class TestTokenizer{
 
     @Test fun testBasicTokenize() {
         val tokens = tokenizer.tokenize("そこではなしは終わりになった")

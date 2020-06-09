@@ -19,8 +19,13 @@ interface DFA {
     }
 }
 
+interface MutableDFA : DFA {
+    fun put(vararg inputSeq: Input) : State;
+    fun getTransition(state: State) : Map<Input, State>
+}
+
 class AhoCorasick(
-        private val dfa: DFA,
+        val dfa: DFA,
         private val fallbacks: IntArray
 ) : DFA {
 
@@ -85,7 +90,7 @@ class AhoCorasick(
                 }
             }
 
-            return AhoCorasick(mutableDFA, fallbacks);
+            return AhoCorasick(SortedArrayTrie(mutableDFA), fallbacks);
         }
     }
 }

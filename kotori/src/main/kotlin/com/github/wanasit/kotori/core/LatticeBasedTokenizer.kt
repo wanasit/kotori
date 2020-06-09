@@ -1,35 +1,47 @@
 package com.github.wanasit.kotori.core
 
 import com.github.wanasit.kotori.*
-import com.github.wanasit.kotori.ahocorasick.AhoCorasickPatternMatcher
-import com.github.wanasit.kotori.ahocorasick.PatternMatchingStrategy
+import com.github.wanasit.kotori.ahocorasick.*
+import java.lang.IllegalStateException
+import kotlin.math.min
 
 class LatticeBasedToken(
         override val text: String,
         override val position: Int) : Token;
 
 class LatticeBasedTokenizer(
-        private val dictionary: Dictionary<*>,
-        private val matchingStrategy: PatternMatchingStrategy<TermEntry> =
-                AhoCorasickPatternMatcher(dictionary.terms.map { it.second.surfaceForm to it.second })
+        private val dictionary: Dictionary<*>
 ) : Tokenizer {
+
+    val table: Array<Array<TermEntry>>
+    val dfa: DFA
+
+    init {
+        val outputTable: MutableMap<State, MutableSet<TermID>> = mutableMapOf()
+        val trie = HashMapTrie()
+        dictionary.terms.forEach{(termId, term) ->
+            val inputSeq = term.surfaceForm.chars().toArray()
+            val state = trie.put(*inputSeq);
+            outputTable.getOrPut(state, { mutableSetOf() })
+                    .add(termId)
+        }
+
+        dfa = SortedArrayTrie(trie)
+        table = Array(dfa.size()) {
+            outputTable[it]?.map { dictionary.terms[it]!! }?.toTypedArray() ?: arrayOf()
+        }
+    }
 
     override fun tokenize(text: String): List<Token> {
         val lattice = Lattice(text.length)
-        val matcher = matchingStrategy.matcher()
-
-        text.forEachIndexed {index, c ->
-            val terms = matcher.processNextChar(c);
-            terms.forEach {
-                val endIndex = index + 1
-                val startIndex = endIndex - it.surfaceForm.length
-                lattice.addNode(it, startIndex, endIndex)
-            }
-        }
 
         for (i in text.indices) {
+            if (!lattice.hasNodeEndAtIndex(i)) {
+                continue
+            }
+            val found = process(lattice, text, i)
             val unknownTerms = dictionary.unknownExtraction
-                    ?.extractUnknownTerms(text, i, !lattice.hasNodeStartAtIndex(i))
+                    ?.extractUnknownTerms(text, i, !found)
                     ?:emptyList()
 
             unknownTerms.forEach {
@@ -39,5 +51,23 @@ class LatticeBasedTokenizer(
 
         val path = lattice.connectAndClose(dictionary.connection)
         return path?.map { LatticeBasedToken(it.termEntry.surfaceForm, it.location) } ?: emptyList()
+    }
+
+    private fun process(lattice: Lattice, text: String, i: Int) : Boolean {
+
+        var found = false
+        var state = DFA.ROOT
+        var index = i
+        while (state != DFA.NONE && index < text.length) {
+            state = dfa.nextState(state, text[index++].toInt())
+            if (state != DFA.NONE) {
+                table[state].forEach {
+                    lattice.addNode(it, i, index)
+                    found = true
+                }
+            }
+        }
+
+        return found
     }
 }
