@@ -1,97 +1,143 @@
 package com.github.wanasit.kotori.core
 import com.github.wanasit.kotori.ConnectionCost
 import com.github.wanasit.kotori.TermEntry
+import com.github.wanasit.kotori.optimized.IndexedIntArray
+import java.util.ArrayList
 
-data class LatticeNode(
-        val location: Int,
-        val termEntry: TermEntry,
-        var totalCost: Int?,
-        var previousNode: LatticeNode?
+interface LatticeBuilder {
+    fun createLattice(connection: ConnectionCost, size: Int): Lattice
+}
+
+interface Lattice {
+    fun addNode(term:TermEntry, startIndex: Int, endIndex: Int = startIndex + term.surfaceForm.length)
+    fun hasNodeStartingAtIndex(index: Int): Boolean
+    fun hasNodeEndingAtIndex(index: Int): Boolean
+
+    fun findPath(): List<LatticeNode>?
+}
+
+class LatticeNode (
+    val termEntry: TermEntry,
+    val location: Int
 )
 
-internal val BEGIN_NODE = LatticeNode(0, object : TermEntry {
-    override val surfaceForm = ""
-    override val leftId = 0
-    override val rightId = 0
-    override val cost = 0
-}, 0, null)
+typealias NodeId = Int
 
-class Lattice(
-        length: Int
-) {
-    private val nodesByStartIndex: Array<MutableList<LatticeNode>> = Array(length) { mutableListOf<LatticeNode>() }
-    private val nodesByEndIndex: Array<MutableList<LatticeNode>> = Array(length + 1) { mutableListOf<LatticeNode>() }
-    init {
-        nodesByEndIndex[0].add(BEGIN_NODE)
+object Lattices : LatticeBuilder {
+
+    override fun createLattice(connection: ConnectionCost, size: Int): Lattice {
+        return FixedSizeLazyComputeLattice(connection, size)
     }
 
-    fun hasNodeStartAtIndex(index: Int) : Boolean = nodesByStartIndex[index].isNotEmpty()
-    fun hasNodeEndAtIndex(index: Int) : Boolean = nodesByEndIndex[index].isNotEmpty()
+    private const val NODE_ID_NONE = -1
+    private const val NODE_ID_BEGIN = -2
 
-    fun addNode(term: TermEntry, startIndex: Int, endIndex: Int = startIndex + term.surfaceForm.length) {
-        val node = LatticeNode(location = startIndex, termEntry = term, totalCost = null, previousNode=null)
-        nodesByStartIndex[startIndex].add(node)
-        nodesByEndIndex[endIndex].add(node)
-    }
+    /**
+     * A lattice implementation that keep all inserted nodes (indexed by their start/end locations).
+     * The implementation connects nodes and computes the cost once in findPath() by checking each i-th location.
+     */
+    class FixedSizeLazyComputeLattice(
+            private val connection: ConnectionCost,
+            private val length: Int
+    ) : Lattice {
+        private var nodes: MutableList<LatticeNode> = ArrayList(32)
+        private val startLocationIndex: IndexedIntArray = IndexedIntArray(length)
+        private val endLocationIndex: IndexedIntArray = IndexedIntArray(length + 1)
+        init {
+            endLocationIndex.insert(0, NODE_ID_BEGIN)
+        }
 
-    fun connectAndClose(connection: ConnectionCost) : List<LatticeNode>? {
-        for (i in 1 until nodesByEndIndex.size) {
-            nodesByEndIndex[i].forEach {
-                var minPrevNode: LatticeNode? = null
-                var minPrevCost = Int.MAX_VALUE
+        override fun hasNodeStartingAtIndex(index: Int): Boolean = startLocationIndex.hasMemberAtIndex(index)
 
-                for (prevNode in nodesByEndIndex[it.location]) {
-                    if (prevNode.totalCost == null) {
-                        continue
-                    }
+        override fun hasNodeEndingAtIndex(index: Int): Boolean = endLocationIndex.hasMemberAtIndex(index)
 
-                    val cost = connection.lookup(prevNode.termEntry.rightId, it.termEntry.leftId)
-                    if (cost != null) {
-                        val prevTotalCost = prevNode.totalCost!! + cost
-                        if (prevTotalCost < minPrevCost) {
-                            minPrevCost = prevTotalCost
-                            minPrevNode = prevNode
+        override fun addNode(term: TermEntry, startIndex: Int, endIndex: Int) {
+            val node = LatticeNode(term, startIndex)
+            val nodeId: NodeId = nodes.size
+            nodes.add(node)
+            startLocationIndex.insert(startIndex, nodeId)
+            endLocationIndex.insert(endIndex, nodeId)
+        }
+
+        override fun findPath(): List<LatticeNode>? {
+            val totalCosts = IntArray(nodes.size) { nodes[it].termEntry.cost }
+            val previousNodes = IntArray(nodes.size) { NODE_ID_NONE }
+
+            foreachNodeStartAtIndex(0) { rightNodeId, rightNode ->
+                val cost = connection.lookup(0, rightNode.termEntry.leftId)
+                totalCosts[rightNodeId] += cost
+                previousNodes[rightNodeId] = NODE_ID_BEGIN
+            }
+
+            for (location in 1 until length) {
+                foreachNodeStartAtIndex(location) { rightNodeId, rightNode ->
+                    var minPrevNode: Int = NODE_ID_NONE
+                    var minPrevCost = Int.MAX_VALUE
+
+                    foreachNodeEndAtIndex(location) { leftNodeId, leftNode ->
+                        if (previousNodes[leftNodeId] != NODE_ID_NONE) {
+                            val cost = connection.lookup(leftNode.termEntry.rightId, rightNode.termEntry.leftId)
+                            val prevTotalCost = totalCosts[leftNodeId] + cost
+                            if (prevTotalCost < minPrevCost) {
+                                minPrevCost = prevTotalCost
+                                minPrevNode = leftNodeId
+                            }
                         }
                     }
-                }
 
-                if (minPrevNode != null) {
-                    it.previousNode = minPrevNode
-                    it.totalCost = minPrevCost + it.termEntry.cost
-                }
-            }
-        }
-
-
-        var minPrevNode: LatticeNode? = null
-        var minPrevCost = Int.MAX_VALUE
-
-        for (prevNode in nodesByEndIndex.last()) {
-            if (prevNode.totalCost == null) {
-                continue
-            }
-
-            val connectionCost = connection.lookup(prevNode.termEntry.rightId, 0)
-            if (connectionCost != null) {
-                val prevTotalCost = prevNode.totalCost!! + connectionCost
-                if (prevTotalCost < minPrevCost) {
-                    minPrevCost = prevTotalCost
-                    minPrevNode = prevNode
+                    if (minPrevNode != NODE_ID_NONE) {
+                        previousNodes[rightNodeId] = minPrevNode
+                        totalCosts[rightNodeId] += minPrevCost
+                    }
                 }
             }
+
+            val minPrevNodeId = findEndingNodeId(previousNodes, totalCosts)
+            return transverse(previousNodes, minPrevNodeId)
         }
 
-        return minPrevNode?.transverse() ?: emptyList()
-    }
+        private fun findEndingNodeId(previousNodes: IntArray, totalCosts: IntArray) : Int {
+            var minEndingNodeId: Int = NODE_ID_NONE
+            var minEndingCost = Int.MAX_VALUE
 
-    private fun LatticeNode.transverse() : List<LatticeNode> {
+            foreachNodeEndAtIndex(length) { endingNodeId, endingNode ->
+                if (previousNodes[endingNodeId] != NODE_ID_NONE) {
+                    val cost = connection.lookup(endingNode.termEntry.rightId, 0)
+                    val prevTotalCost = totalCosts[endingNodeId] + cost
+                    if (prevTotalCost < minEndingCost) {
+                        minEndingCost = prevTotalCost
+                        minEndingNodeId = endingNodeId
+                    }
+                }
+            }
 
-        val path = mutableListOf<LatticeNode>()
-        var currentNode: LatticeNode = this
-        while (currentNode.previousNode != null) {
-            path.add(currentNode)
-            currentNode = currentNode.previousNode!!
+            return minEndingNodeId
         }
-        return path.reversed()
+
+        private inline fun foreachNodeEndAtIndex(index: Int, apply: (NodeId, LatticeNode) -> Unit) {
+            endLocationIndex.accessMembersAtIndex(index) { apply(it, nodes[it]) }
+        }
+
+        private inline fun foreachNodeStartAtIndex(index: Int, apply: (NodeId, LatticeNode) -> Unit) {
+            startLocationIndex.accessMembersAtIndex(index) { apply(it, nodes[it]) }
+        }
+
+        private fun transverse(prevNodes: IntArray, endNodeId: Int): List<LatticeNode>? {
+            if (endNodeId == NODE_ID_NONE) {
+                return null
+            }
+
+            val nodeIdInPath = IntArray(length)
+            var nodeIdInPathCount = 0
+
+            var currentNodeId = endNodeId
+            while (prevNodes[currentNodeId] != NODE_ID_BEGIN) {
+                nodeIdInPath[nodeIdInPathCount++] = currentNodeId
+                currentNodeId = prevNodes[currentNodeId]
+            }
+
+            nodeIdInPath[nodeIdInPathCount] = currentNodeId
+            return IntProgression.fromClosedRange(nodeIdInPathCount, 0, -1).map { nodes[nodeIdInPath[it]] }
+        }
     }
 }

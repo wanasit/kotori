@@ -1,4 +1,4 @@
-package com.github.wanasit.kotori.core
+package com.github.wanasit.kotori.optimized
 
 import com.github.wanasit.kotori.ConnectionCost
 
@@ -11,7 +11,7 @@ object OptimizedDictionary {
 
         private val table: IntArray = IntArray(fromIdCardinality * toIdCardinality) { 0 }
 
-        override fun lookup(fromRightId: Int, toLeftId: Int): Int? {
+        override fun lookup(fromRightId: Int, toLeftId: Int): Int {
             return this.table[index(fromRightId, toLeftId)]
         }
 

@@ -4,7 +4,7 @@ import com.github.wanasit.kotori.utils.CSVUtil
 import com.github.wanasit.kotori.utils.ResourceUtil.readResourceAsStream
 import com.github.wanasit.kotori.utils.checkArgument
 import com.github.wanasit.kotori.*
-import com.github.wanasit.kotori.core.OptimizedDictionary
+import com.github.wanasit.kotori.optimized.OptimizedDictionary
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
@@ -156,7 +156,7 @@ class MeCabConnectionCost(
         val connectionCostArray: OptimizedDictionary.ConnectionCostArray
 ) : ConnectionCost {
 
-    override fun lookup(fromRightId: Int, toLeftId: Int): Int?
+    override fun lookup(fromRightId: Int, toLeftId: Int): Int
             = connectionCostArray.lookup(fromRightId, toLeftId)
 
     companion object {

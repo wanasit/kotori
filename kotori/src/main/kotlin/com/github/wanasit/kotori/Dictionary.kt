@@ -47,7 +47,7 @@ interface TermEntry {
  * - 772 (Verb-ru) to 772 (Verb-ru) => -3713
  */
 interface ConnectionCost {
-    fun lookup(fromRightId: Int, toLeftId: Int): Int?
+    fun lookup(fromRightId: Int, toLeftId: Int): Int
 }
 
 /**

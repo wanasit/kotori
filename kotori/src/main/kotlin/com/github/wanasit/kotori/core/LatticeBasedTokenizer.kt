@@ -2,8 +2,6 @@ package com.github.wanasit.kotori.core
 
 import com.github.wanasit.kotori.*
 import com.github.wanasit.kotori.ahocorasick.*
-import java.lang.IllegalStateException
-import kotlin.math.min
 
 class LatticeBasedToken(
         override val text: String,
@@ -33,13 +31,13 @@ class LatticeBasedTokenizer(
     }
 
     override fun tokenize(text: String): List<Token> {
-        val lattice = Lattice(text.length)
+        val lattice = Lattices.createLattice(dictionary.connection, text.length)
 
         for (i in text.indices) {
-            if (!lattice.hasNodeEndAtIndex(i)) {
+            if (!lattice.hasNodeEndingAtIndex(i)) {
                 continue
             }
-            val found = process(lattice, text, i)
+            val found = processTerms(lattice, text, i)
             val unknownTerms = dictionary.unknownExtraction
                     ?.extractUnknownTerms(text, i, !found)
                     ?:emptyList()
@@ -49,11 +47,11 @@ class LatticeBasedTokenizer(
             }
         }
 
-        val path = lattice.connectAndClose(dictionary.connection)
+        val path = lattice.findPath()
         return path?.map { LatticeBasedToken(it.termEntry.surfaceForm, it.location) } ?: emptyList()
     }
 
-    private fun process(lattice: Lattice, text: String, i: Int) : Boolean {
+    private fun processTerms(lattice: Lattice, text: String, i: Int) : Boolean {
 
         var found = false
         var state = DFA.ROOT

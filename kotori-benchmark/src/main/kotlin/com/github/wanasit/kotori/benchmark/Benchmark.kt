@@ -31,7 +31,7 @@ object Benchmark {
 // ---------------------------------------------------------
 
 fun main() {
-    val dataset = LivedoorNews.loadDataset().repeat(3)
+    val dataset = LivedoorNews.loadDataset().repeat(5)
     val sudachi = runAndPrintTimeMillis("Loading Sudachi") {
         Tokenizers.loadSudachiTokenizer();
     }
@@ -45,7 +45,7 @@ fun main() {
     }
 
     //runBenchmark(sudachi, dataset)
-    runBenchmark(kuromoji, dataset)
+    //runBenchmark(kuromoji, dataset)
     runBenchmark(kotori, dataset)
 }
 

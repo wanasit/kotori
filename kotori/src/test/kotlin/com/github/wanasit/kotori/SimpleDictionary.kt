@@ -72,8 +72,8 @@ class SimpleConnectionTable() : ConnectionCost {
 
     private val connection: MutableMap<Pair<Int, Int>, Int> = mutableMapOf()
 
-    override fun lookup(fromRightId: Int, toLeftId: Int): Int? {
-        return connection[fromRightId to toLeftId]
+    override fun lookup(fromRightId: Int, toLeftId: Int): Int {
+        return connection[fromRightId to toLeftId] ?: Int.MAX_VALUE
     }
 
     private var toTypes: List<WordType>? = null
