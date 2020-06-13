@@ -1,6 +1,7 @@
 package com.github.wanasit.kotori.optimized
 
 private val EMPTY_INT_ARRAY: IntArray = intArrayOf()
+private const val INIT_ARRAY_SIZE = 4
 
 /**
  * An optimized data structure for inserting/reading members (Int) at index value (Int)
@@ -35,7 +36,7 @@ class IndexedIntArray(length: Int) {
 
     private fun ensureSize(dataArray: Array<IntArray>, index: Int, size: Int) {
         if (size == 0) {
-            dataArray[index] = IntArray(4)
+            dataArray[index] = IntArray(INIT_ARRAY_SIZE)
 
         } else if (dataArray[index].size <= size) {
             val newArray = IntArray(size * 2)

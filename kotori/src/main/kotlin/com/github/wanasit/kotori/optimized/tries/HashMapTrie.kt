@@ -1,4 +1,4 @@
-package com.github.wanasit.kotori.ahocorasick
+package com.github.wanasit.kotori.optimized.tries
 
 
 class HashMapTrie : MutableDFA {
@@ -12,23 +12,18 @@ class HashMapTrie : MutableDFA {
         return transitionTable[state][input] ?: DFA.NONE
     }
 
-    override fun put(vararg inputSeq: Input): State {
-        var state = DFA.ROOT;
-        for (i in inputSeq) {
-            var nextState = transitionTable[state].get(i) ?: DFA.NONE
-            if (nextState == DFA.NONE) {
-                nonRootStateCount += 1;
+    override fun nextOrPutState(state: State, input: Input): State {
+        var nextState = transitionTable[state][input] ?: DFA.NONE
+        if (nextState == DFA.NONE) {
+            nonRootStateCount += 1;
 
-                transitionTable.add(mutableMapOf())
-                transitionTable[state].put(i, nonRootStateCount)
+            transitionTable.add(mutableMapOf())
+            transitionTable[state].put(input, nonRootStateCount)
 
-                nextState = nonRootStateCount
-            }
-
-            state = nextState;
+            nextState = nonRootStateCount
         }
 
-        return state
+        return nextState;
     }
 
     override fun getTransition(state: State): Map<Input, State> {
@@ -39,5 +34,4 @@ class HashMapTrie : MutableDFA {
         return nonRootStateCount + 1;
     }
 }
-
 

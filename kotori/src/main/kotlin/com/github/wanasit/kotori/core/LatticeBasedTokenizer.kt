@@ -1,7 +1,7 @@
 package com.github.wanasit.kotori.core
 
 import com.github.wanasit.kotori.*
-import com.github.wanasit.kotori.ahocorasick.*
+import com.github.wanasit.kotori.optimized.tries.*
 
 class LatticeBasedToken(
         override val text: String,
@@ -18,13 +18,12 @@ class LatticeBasedTokenizer(
         val outputTable: MutableMap<State, MutableSet<TermID>> = mutableMapOf()
         val trie = HashMapTrie()
         dictionary.terms.forEach{(termId, term) ->
-            val inputSeq = term.surfaceForm.chars().toArray()
-            val state = trie.put(*inputSeq);
+            val state = trie.insert(term.surfaceForm)
             outputTable.getOrPut(state, { mutableSetOf() })
                     .add(termId)
         }
 
-        dfa = SortedArrayTrie(trie)
+        dfa = HybridArrayTrie(trie)
         table = Array(dfa.size()) {
             outputTable[it]?.map { dictionary.terms[it]!! }?.toTypedArray() ?: arrayOf()
         }
