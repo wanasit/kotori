@@ -35,21 +35,22 @@ object Benchmark {
 
 fun main() {
     val dataset = LivedoorNews.loadDataset().repeat(5)
-    val sudachi = runAndPrintTimeMillis("Loading Sudachi") {
+    val sudachi = runAndPrintTimeMillis("Loading Sudachi tokenizer") {
         Tokenizers.loadSudachiTokenizer();
     }
 
-    val dict = runAndPrintTimeMillis("Loading Kotori") {
+    val kuromoji = runAndPrintTimeMillis("Loading Kuromoji tokenizer") {
+        Tokenizers.loadKuromojiIpadicTokenizer();
+    }
+
+    val dict = runAndPrintTimeMillis("Loading Kotori Dictionary") {
         OptimizedDictionary.readFromResource()
     }
 
-    val kotori = runAndPrintTimeMillis("Loading Kotori") {
-        LatticeBasedTokenizer(dict)
+    val kotori = runAndPrintTimeMillis("Building Kotori Tokenizer") {
+        Tokenizer.create(dict)
     }
 
-    val kuromoji = runAndPrintTimeMillis("Loading Kuromoji") {
-        Tokenizers.loadKuromojiIpadicTokenizer();
-    }
 
     runBenchmark(sudachi, dataset)
     runBenchmark(kuromoji, dataset)
