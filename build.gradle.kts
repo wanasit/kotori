@@ -22,25 +22,25 @@ task("prepareData") {
 
 task<Copy>("prepareMecabIpadic") {
     dependsOn("downloadMecabIpadic")
-    from(tarTree("data/${Data.mecabIpadicVersion}.tar.gz"))
+    from(tarTree("data/${Data.MecabIpadicVersion}.tar.gz"))
     into(project.file("data"))
 }
 
 task<Copy>("prepareSudachiDict") {
     dependsOn("downloadSudachiDict")
-    from(zipTree("data/${Data.sudachiDictVersion}.zip"))
+    from(zipTree("data/${Data.SudachiDictVersion}.zip"))
     into(project.file("data"))
 }
 
 task<Download>("downloadMecabIpadic") {
-    src("http://atilika.com/releases/mecab-ipadic/${Data.mecabIpadicVersion}.tar.gz")
-    dest(project.file(("data/${Data.mecabIpadicVersion}.tar.gz")))
+    src("http://atilika.com/releases/mecab-ipadic/${Data.MecabIpadicVersion}.tar.gz")
+    dest(project.file(("data/${Data.MecabIpadicVersion}.tar.gz")))
     overwrite(false)
 }
 
 task<Download>("downloadSudachiDict") {
-    src("https://object-storage.tyo2.conoha.io/v1/nc_2520839e1f9641b08211a5c85243124a/sudachi/${Data.sudachiDictVersion}-small.zip")
-    dest(project.file(("data/${Data.sudachiDictVersion}.zip")))
+    src("https://object-storage.tyo2.conoha.io/v1/nc_2520839e1f9641b08211a5c85243124a/sudachi/${Data.SudachiDictVersion}-small.zip")
+    dest(project.file(("data/${Data.SudachiDictVersion}.zip")))
     overwrite(false)
 }
 

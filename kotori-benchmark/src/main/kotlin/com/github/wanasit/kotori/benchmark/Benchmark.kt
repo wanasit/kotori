@@ -7,6 +7,9 @@ import com.github.wanasit.kotori.benchmark.Benchmark.runAndPrintTimeMillis
 import com.github.wanasit.kotori.benchmark.dataset.LivedoorNews
 import com.github.wanasit.kotori.benchmark.dataset.TextDatasetEntry
 import com.github.wanasit.kotori.benchmark.dataset.repeat
+import com.github.wanasit.kotori.core.LatticeBasedTokenizer
+import com.github.wanasit.kotori.mecab.MeCabDictionary
+import com.github.wanasit.kotori.optimized.dictionary.OptimizedDictionary
 
 object Benchmark {
     public inline fun <Output> measureTimeMillisWithOutput(block: () -> Output): Pair<Long, Output> {
@@ -22,7 +25,7 @@ object Benchmark {
     }
 
     public inline fun <Output> runAndPrintTimeMillis(msg: String, block: () -> Output) : Output {
-        val (time, output) = Benchmark.measureTimeMillisWithOutput { block() }
+        val (time, output) = measureTimeMillisWithOutput { block() }
         println("[$msg] took $time ms")
         return output;
     }
@@ -36,8 +39,12 @@ fun main() {
         Tokenizers.loadSudachiTokenizer();
     }
 
+    val dict = runAndPrintTimeMillis("Loading Kotori") {
+        OptimizedDictionary.readFromResource()
+    }
+
     val kotori = runAndPrintTimeMillis("Loading Kotori") {
-        Tokenizers.loadKotoriTokenizer();
+        LatticeBasedTokenizer(dict)
     }
 
     val kuromoji = runAndPrintTimeMillis("Loading Kuromoji") {

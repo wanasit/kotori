@@ -12,6 +12,11 @@ interface Tokenizer {
             val defaultDictionary = Dictionary.readDefaultFromResource()
             return LatticeBasedTokenizer(defaultDictionary)
         }
+
+        @JvmStatic
+        fun create(dictionary: Dictionary<*>): Tokenizer {
+            return LatticeBasedTokenizer(dictionary)
+        }
     }
 }
 

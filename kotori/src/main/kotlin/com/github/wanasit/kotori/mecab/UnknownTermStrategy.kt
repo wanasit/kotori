@@ -1,8 +1,9 @@
 package com.github.wanasit.kotori.mecab
 
 import com.github.wanasit.kotori.TermEntry
-import com.github.wanasit.kotori.UnknownTermExtractionStrategy
-import com.github.wanasit.kotori.utils.checkArgument
+import com.github.wanasit.kotori.optimized.dictionary.CharCategory
+import com.github.wanasit.kotori.optimized.dictionary.CharCategoryDefinition
+import com.github.wanasit.kotori.optimized.dictionary.UnknownTermExtractionByCharacterCategory
 import java.io.InputStream
 import java.nio.charset.Charset
 import java.nio.file.Paths
@@ -14,140 +15,85 @@ data class ExtractedUnknownTermEntry(
     override val surfaceForm: String = term
 }
 
-class MeCabUnknownTermExtractionStrategy(
-        unknownDictionaryEntries: List<MeCabTermEntry>,
-        charDefinitionLookup: MeCabCharDefinitionLookup
-) : UnknownTermExtractionStrategy {
+object MeCabUnknownTermExtractionStrategy {
 
-    companion object {
+    fun readFromDirectory(
+            dir: String, charset: Charset = MeCabDictionary.DEFAULT_CHARSET
+    ) : UnknownTermExtractionByCharacterCategory<MeCabTermEntry> = readFromFileInputStreams(
+            Paths.get(dir).resolve(MeCabDictionary.FILE_NAME_UNKNOWN_ENTRIES).toFile().inputStream(),
+            Paths.get(dir).resolve(MeCabDictionary.FILE_NAME_CHARACTER_DEFINITION).toFile().inputStream(),
+            charset)
 
-        fun readFromDirectory(
-                dir: String, charset: Charset = MeCabDictionary.DEFAULT_CHARSET
-        ) : MeCabUnknownTermExtractionStrategy = readFromInputStream(
-                Paths.get(dir).resolve(MeCabDictionary.FILE_NAME_UNKNOWN_ENTRIES).toFile().inputStream(),
-                Paths.get(dir).resolve(MeCabDictionary.FILE_NAME_CHARACTER_DEFINITION).toFile().inputStream(),
-                charset)
-
-        fun readFromInputStream(
-                unknownDefinitionInputStream: InputStream,
-                charDefinitionInputStream: InputStream,
-                charset: Charset
-        ) : MeCabUnknownTermExtractionStrategy {
-            val unknownTermEntries = MeCabTermEntry.read(unknownDefinitionInputStream, charset)
-            val charDefinitionLookup = MeCabCharDefinitionLookup.read(charDefinitionInputStream, charset)
-            return MeCabUnknownTermExtractionStrategy(unknownTermEntries, charDefinitionLookup)
-        }
+    fun readFromFileInputStreams(
+            unknownDefinitionInputStream: InputStream,
+            charDefinitionInputStream: InputStream,
+            charset: Charset
+    ) : UnknownTermExtractionByCharacterCategory<MeCabTermEntry> {
+        val unknownTermEntries = MeCabTermEntry.readEntriesFromFileInputStream(unknownDefinitionInputStream, charset)
+        val charDefinitionLookup = MeCabCharDefinition
+                .readFromCharDefinitionFileInputStream(charDefinitionInputStream, charset)
+        return create(unknownTermEntries, charDefinitionLookup)
     }
 
-    private val indexedUnknownEntries: Map<Int, List<MeCabTermEntry>>
-    private val charDefinitions = charDefinitionLookup;
+    fun create(
+            unknownTermEntries: List<MeCabTermEntry>,
+            charDefinition: MeCabCharDefinition
+    ): UnknownTermExtractionByCharacterCategory<MeCabTermEntry> {
 
-    init {
-        val indexedEntries = unknownDictionaryEntries.groupBy { it.surfaceForm }
-        indexedUnknownEntries = charDefinitionLookup.categoryDefinitions()
-                .mapValues { indexedEntries.get(it.value.categoryName) ?: emptyList() }
-    }
+        val categoryNameLookup = charDefinition.createCategoryNameLookup()
+        val charToCategories = charDefinition.createCharToCategoryMapping(categoryNameLookup)
+        val definitionMapping = charDefinition.createCategoryToDefinition()
 
-    override fun extractUnknownTerms(text: String, index: Int, forceExtraction: Boolean): Iterable<TermEntry> {
+        val termEntryMapping = unknownTermEntries.groupBy { it.surfaceForm }
+                .mapKeys { categoryNameLookup[it.key]
+                        ?: throw IllegalArgumentException("Unknown category name '${it.key}'") }
 
-        val results: MutableList<TermEntry> = mutableListOf()
-
-        val charCategories = charDefinitions.lookupCharCategories(text[index])
-        for (charCategory in charCategories) {
-            val categoryDefinition = charDefinitions.lookupCategoryDefinition(charCategory)
-            if (!forceExtraction && !categoryDefinition.invoke) {
-                continue
-            }
-
-            val term = findConsecutiveCharsWithCategory(charCategory, text, index)
-            indexedUnknownEntries[charCategory]?.forEach {
-                results.add(ExtractedUnknownTermEntry(it, term))
-            }
-        }
-
-        return results
-    }
-
-    private fun findConsecutiveCharsWithCategory(charCategory: Int, text: String, index: Int) : String {
-        var i = index + 1
-        while (i < text.length && charDefinitions.lookupCharCategories(text[i]).contains(charCategory)) {
-            i += 1
-        }
-
-        return text.substring(index, i)
+        return UnknownTermExtractionByCharacterCategory.fromUnoptimizedMapping(
+                charToCategories, definitionMapping, termEntryMapping)
     }
 }
 
-
-data class CharCategoryDefinition(
-        val categoryName: String,
-        val invoke: Boolean,
-        val group: Boolean,
-        val length: Int
-)
-
-class MeCabCharDefinitionLookup constructor(
-        categoryDefinitions: List<CharCategoryDefinition>,
-        mappingEntries: List<Triple<String, Int, Int>>
+/**
+ * This class represent the character definition as defined in char.def file
+ */
+class MeCabCharDefinition constructor(
+        val categoryDefinitions: List<MecabCharCategoryDefinition>,
+        val categoryCharCodeRanges: List<Triple<String, Int, Int>>
 ) {
+    /** char.def example
+    # This is comment
+    ...
+    DEFAULT         0 1 0  # DEFAULT is a mandatory category!
+    SPACE           0 1 0
+    ...
+    0xFF10..0xFF19 NUMERIC
+    ...
 
-    private val definitions: List<CharCategoryDefinition> = categoryDefinitions;
-    private val table: Array<IntArray?>;
-
-    fun lookupCharCategories(charCode: Char): IntArray {
-        return table[charCode.toInt()] ?: intArrayOf(0)
-    }
-
-    fun lookupCategoryDefinition(categoryId: Int) : CharCategoryDefinition {
-        return definitions[categoryId]
-    }
-
-    fun categoryDefinitions() : Map<Int, CharCategoryDefinition> {
-        return definitions
-                .mapIndexed { id, def -> id to def}
-                .toMap()
-    }
-
-    init {
-        val tmpTable = Array(0xffff) { mutableListOf<Int>() }
-        val categoryNameLookup = categoryDefinitions.withIndex()
-                .associate { it.value.categoryName to it.index }
-        mappingEntries.forEach {
-
-            val definitionIndex = categoryNameLookup.get(it.first)
-                    ?: throw IllegalArgumentException("Unknown category name '${it.first}'");
-
-            for (i in it.second..it.third) {
-                tmpTable[i].add(definitionIndex)
-            }
+    0x3007 SYMBOL KANJINUMERIC
+     **/
+    data class MecabCharCategoryDefinition(
+            val categoryName: String,
+            val invoke: Boolean,
+            val group: Boolean,
+            val length: Short
+    ) {
+        fun toCharCategoryDefinition() : CharCategoryDefinition {
+            return CharCategoryDefinition(invoke, group, length)
         }
-        table = tmpTable.map { if (it.isEmpty()) null else it.toIntArray() }.toTypedArray()
     }
 
     companion object {
 
-        fun read(inputStream: InputStream, charset: Charset) : MeCabCharDefinitionLookup {
-            return read(inputStream
+        fun readFromCharDefinitionFileInputStream(inputStream: InputStream, charset: Charset) : MeCabCharDefinition {
+            return readFromLines(inputStream
                     .reader(charset = charset)
                     .readLines())
         }
 
-        fun read(lines: List<String>) : MeCabCharDefinitionLookup {
-
-            /** char.def example
-            # This is comment
-            ...
-            DEFAULT         0 1 0  # DEFAULT is a mandatory category!
-            SPACE           0 1 0
-            ...
-            0xFF10..0xFF19 NUMERIC
-            ...
-
-            0x3007 SYMBOL KANJINUMERIC
-             **/
+        fun readFromLines(lines: List<String>) : MeCabCharDefinition {
             val commentRegEx = "\\s*#.*".toRegex();
 
-            val categoryDefinitions: MutableList<CharCategoryDefinition> = mutableListOf()
+            val categoryDefinitions: MutableList<MecabCharCategoryDefinition> = mutableListOf()
             val mappingEntries: MutableList<Triple<String, Int, Int>> = mutableListOf()
 
             lines
@@ -170,10 +116,10 @@ class MeCabCharDefinitionLookup constructor(
                         line.chars()
                     }
 
-            return MeCabCharDefinitionLookup(categoryDefinitions, mappingEntries);
+            return MeCabCharDefinition(categoryDefinitions, mappingEntries);
         }
 
-        private fun parseCategory(input: String): CharCategoryDefinition {
+        private fun parseCategory(input: String): MecabCharCategoryDefinition {
 
             val whiteSpaceRegEx = "\\s+".toRegex();
             val values = whiteSpaceRegEx.split(input)
@@ -181,9 +127,9 @@ class MeCabCharDefinitionLookup constructor(
             val classname = values[0]
             val invoke = values[1].toInt() == 1
             val group = values[2].toInt() == 1
-            val length = values[3].toInt()
+            val length = values[3].toShort()
 
-            return CharCategoryDefinition(classname, invoke, group, length);
+            return MecabCharCategoryDefinition(classname, invoke, group, length);
         }
 
         private fun parseMapping(input: String) : Iterable<Triple<String, Int, Int>> {
@@ -192,7 +138,7 @@ class MeCabCharDefinitionLookup constructor(
             val rangeSymbolRegex = "\\.\\.".toRegex();
 
             val values = whiteSpaceRegEx.split(input)
-            checkArgument(values.size >= 2)
+            check(values.size >= 2)
             if (values.size == 1) {
                 print("acg")
             }
@@ -211,5 +157,39 @@ class MeCabCharDefinitionLookup constructor(
 
             return categories.map { Triple(it, lowerCodepoint, upperCodepoint + 1) }
         }
+    }
+
+    fun createCategoryNameLookup() : Map<String, CharCategory> {
+        return categoryDefinitions.withIndex().associate { it.value.categoryName to it.index }
+    }
+
+    fun createCharToCategoryMapping(
+            categoryNameLookup: Map<String, CharCategory> = createCategoryNameLookup()
+    ): Map<Char, List<CharCategory>> {
+
+        val tmpArray: Array<MutableList<Int>?> = arrayOfNulls(0xffff + 1)
+        categoryCharCodeRanges.forEach {
+            val charCategory = categoryNameLookup[it.first]
+                    ?: throw IllegalArgumentException("Unknown category name '${it.first}'");
+
+            for (i in it.second..it.third) {
+
+                if (tmpArray[i] == null) {
+                    tmpArray[i] = mutableListOf(charCategory)
+                } else {
+                    tmpArray[i]?.add(charCategory)
+                }
+            }
+        }
+
+        return tmpArray.mapIndexed {
+            charCode, categories-> charCode.toChar() to (categories ?: listOf(0))
+        }.toMap()
+    }
+
+    fun createCategoryToDefinition(): Map<CharCategory, CharCategoryDefinition> {
+        return categoryDefinitions
+                .mapIndexed { i : CharCategory, definition ->  i to definition.toCharCategoryDefinition() }
+                .toMap()
     }
 }

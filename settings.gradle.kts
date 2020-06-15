@@ -1,3 +1,5 @@
 rootProject.name = "kotori"
 
-include("kotori", "kotori-benchmark")
+include("kotori")
+include("kotori-benchmark")
+include("kotori-dictionary-builder")

@@ -11,8 +11,8 @@ class LatticeBasedTokenizer(
         private val dictionary: Dictionary<*>
 ) : Tokenizer {
 
-    val table: Array<Array<TermEntry>>
-    val dfa: DFA
+    private val table: Array<Array<TermEntry>>
+    private val dfa: DFA
 
     init {
         val outputTable: MutableMap<State, MutableSet<TermID>> = mutableMapOf()

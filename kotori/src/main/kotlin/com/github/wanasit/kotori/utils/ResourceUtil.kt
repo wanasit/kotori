@@ -3,10 +3,6 @@ package com.github.wanasit.kotori.utils
 import java.io.InputStream
 import java.util.zip.GZIPInputStream
 
-private const val QUOTE = '"'
-private const val COMMA = ','
-private const val QUOTE_ESCAPED = "\"\""
-
 object ResourceUtil {
 
     /**

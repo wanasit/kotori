@@ -1,7 +1,5 @@
 package com.github.wanasit.kotori
 
-import com.github.wanasit.kotori.utils.checkArgument
-
 typealias WordType = Int
 
 /**
@@ -83,8 +81,8 @@ class SimpleConnectionTable() : ConnectionCost {
     }
 
     fun row(fromType: WordType, vararg costInfo: Int) {
-        checkArgument(toTypes != null)
-        checkArgument(costInfo.size == toTypes?.size)
+        check(toTypes != null)
+        check(costInfo.size == toTypes?.size)
         toTypes?.zip(costInfo.toList())?.forEach { (toType, cost) ->
             connection[fromType to toType] = cost
         }

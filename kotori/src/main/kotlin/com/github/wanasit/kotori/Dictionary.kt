@@ -1,18 +1,18 @@
 package com.github.wanasit.kotori
 
 import com.github.wanasit.kotori.mecab.MeCabDictionary
+import com.github.wanasit.kotori.optimized.dictionary.OptimizedDictionary
 
 
-class Dictionary <out T: TermEntry> (
-        val terms: TermDictionary<T>,
-        val connection: ConnectionCost,
-        val unknownExtraction: UnknownTermExtractionStrategy? = null
+open class Dictionary <out T: TermEntry> (
+        open val terms: TermDictionary<T>,
+        open val connection: ConnectionCost,
+        open val unknownExtraction: UnknownTermExtractionStrategy? = null
 ) {
     companion object {
-
         @JvmStatic
         fun readDefaultFromResource(): Dictionary<TermEntry> {
-            return MeCabDictionary.readFromResource()
+            return OptimizedDictionary.readFromResource()
         }
     }
 }
