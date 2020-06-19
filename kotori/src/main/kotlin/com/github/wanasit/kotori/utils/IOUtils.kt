@@ -6,25 +6,6 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.nio.ByteBuffer
 
-object IO {
-
-    /**
-     *
-     */
-    object String {
-
-
-    }
-
-
-    object Int {
-
-    }
-
-}
-
-
-
 object IOUtils {
 
     fun writeStringArray(outputStream: OutputStream, value: Array<String>, includeSize: Boolean = true) {
@@ -76,8 +57,9 @@ object IOUtils {
     }
 
     fun readStringArray(inputStream: InputStream, stringLengthArray: IntArray): Array<String> {
+        val dataInputStream = DataInputStream(inputStream)
         val output = Array(stringLengthArray.size) {
-            val bytes = inputStream.readNBytes(stringLengthArray[it] * 2)
+            val bytes = dataInputStream.readByteArray(stringLengthArray[it] * 2)
             String(bytes, Charsets.UTF_16)
         }
 
@@ -94,7 +76,7 @@ object IOUtils {
     fun readShortArray(inputStream: InputStream, size: Int): ShortArray {
         val dataInputStream = DataInputStream(inputStream)
         val output = ShortArray(size)
-        ByteBuffer.wrap(dataInputStream.readNBytes(size * 2)).asShortBuffer().get(output)
+        ByteBuffer.wrap(dataInputStream.readByteArray(size * 2)).asShortBuffer().get(output)
         return output
     }
 
@@ -107,12 +89,19 @@ object IOUtils {
     fun readIntArray(inputStream: InputStream, size: Int): IntArray {
         val dataInputStream = DataInputStream(inputStream)
         val output = IntArray(size)
-        ByteBuffer.wrap(dataInputStream.readNBytes(size * 4)).asIntBuffer().get(output)
+        ByteBuffer.wrap(dataInputStream.readByteArray(size * 4)).asIntBuffer().get(output)
         return output
     }
 
     fun readInt(inputStream: InputStream): Int {
         val dataInputStream = DataInputStream(inputStream)
         return dataInputStream.readInt()
+    }
+
+    fun DataInputStream.readByteArray(size: Int): ByteArray {
+        val byteArray = ByteArray(size)
+        this.readFully(byteArray)
+
+        return byteArray
     }
 }
