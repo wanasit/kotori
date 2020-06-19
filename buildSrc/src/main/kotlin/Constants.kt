@@ -1,7 +1,6 @@
 // Library version
 object Kotori {
     const val groupId = "com.github.wanasit.kotori"
-    const val version = "0.0.3"
 
     object Package {
         const val repo = "maven"

@@ -22,7 +22,7 @@ publishing {
         val sourcesJar by tasks
         register(project.name, MavenPublication::class) {
             groupId = Kotori.groupId
-            version = Kotori.version
+            version = project.version as String?
             artifactId = project.name
             from(components["java"])
             artifact(sourcesJar)

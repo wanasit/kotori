@@ -1,18 +1,24 @@
 import de.undercouch.gradle.tasks.download.Download
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import com.palantir.gradle.gitversion.VersionDetails
 
 plugins {
     java
     kotlin("jvm") version Kotlin.version
 
     id("de.undercouch.download") version "4.0.4"
+    id("com.palantir.git-version") version "0.12.3"
 
-    `maven-publish`
     id(Release.MavenPublish.plugin)
     id(Release.Bintray.plugin) version Release.Bintray.version
 }
 
+val versionDetails: groovy.lang.Closure<*> by extra
+val gitVersionDetails: VersionDetails = versionDetails() as VersionDetails
+
 allprojects {
+    version = gitVersionDetails.lastTag
+    group = Kotori.groupId
 
     repositories {
         jcenter()
@@ -28,9 +34,6 @@ allprojects {
         plugin(Release.Bintray.plugin)
     }
 
-    version = Kotori.version
-    group = Kotori.groupId
-
     bintray {
         user = findProperty("BINTRAY_USER") as? String
         key = findProperty("BINTRAY_KEY") as? String
@@ -44,14 +47,14 @@ allprojects {
             vcsUrl = Kotori.Package.url
             setLicenses(Kotori.Package.licenseName)
             with(version) {
-                name = Kotori.version
+                name = project.version as String
             }
         }
     }
 
     publishing {
         publications {
-            // Empty publish
+            // Don't publish any, unless override in sub-project
         }
     }
 }
