@@ -3,12 +3,6 @@ plugins {
     kotlin("jvm")
 }
 
-repositories {
-    jcenter()
-    maven(url="http://www.atilika.org/nexus/content/repositories/atilika")
-}
-
-
 dependencies {
     implementation(project(":kotori"))
 
@@ -17,6 +11,7 @@ dependencies {
     implementation("com.beust:klaxon:5.0.1")
 
     implementation(Kotlin.Dependencies.stdlib)
+    implementation(Kotlin.Dependencies.reflect)
 
     testImplementation(Kotlin.Dependencies.test)
     testImplementation(Kotlin.Dependencies.testJunit)

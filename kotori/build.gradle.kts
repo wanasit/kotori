@@ -1,18 +1,12 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     `java-library`
     kotlin("jvm")
     `maven-publish`
 }
 
-repositories {
-    jcenter()
-}
-
-// compile bytecode to java 8 (default is java 6)
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
+task<Jar>("sourcesJar") {
+    from(sourceSets["main"].allSource)
+    archiveClassifier.set("sources")
 }
 
 dependencies {
@@ -25,19 +19,29 @@ dependencies {
 
 publishing {
     publications {
-        create<MavenPublication>(name) {
+        val sourcesJar by tasks
+        register(project.name, MavenPublication::class) {
             groupId = Kotori.groupId
             version = Kotori.version
-            artifactId = name
-
+            artifactId = project.name
             from(components["java"])
+            artifact(sourcesJar)
 
             pom {
+                name.set(project.name)
+                description.set(Kotori.Package.desc)
+                url.set(Kotori.Package.url)
+
                 licenses {
                     license {
                         name.set("MIT License")
                         url.set("http://www.opensource.org/licenses/mit-license.php")
                     }
+                }
+                scm {
+                    url.set(Kotori.Package.url)
+                    connection.set(Kotori.Package.scm)
+                    developerConnection.set(Kotori.Package.scm)
                 }
             }
         }

@@ -1,15 +1,59 @@
 import de.undercouch.gradle.tasks.download.Download
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     java
-    kotlin("jvm") version Kotlin.version apply false
-    `maven-publish`
+    kotlin("jvm") version Kotlin.version
 
     id("de.undercouch.download") version "4.0.4"
+
+    `maven-publish`
+    id(Release.MavenPublish.plugin)
+    id(Release.Bintray.plugin) version Release.Bintray.version
 }
 
-repositories {
-    jcenter()
+allprojects {
+
+    repositories {
+        jcenter()
+    }
+
+    // compile bytecode to java 8 (default is java 6)
+    tasks.withType<KotlinCompile> {
+        kotlinOptions.jvmTarget = "1.8"
+    }
+
+    apply {
+        plugin(Release.MavenPublish.plugin)
+        plugin(Release.Bintray.plugin)
+    }
+
+    version = Kotori.version
+    group = Kotori.groupId
+
+    bintray {
+        user = findProperty("BINTRAY_USER") as? String
+        key = findProperty("BINTRAY_KEY") as? String
+        setPublications(project.name)
+        with(pkg) {
+            repo = Kotori.Package.repo
+            name = Kotori.Package.name
+            desc = Kotori.Package.desc
+            userOrg = Kotori.Package.userOrg
+            websiteUrl = Kotori.Package.url
+            vcsUrl = Kotori.Package.url
+            setLicenses(Kotori.Package.licenseName)
+            with(version) {
+                name = Kotori.version
+            }
+        }
+    }
+
+    publishing {
+        publications {
+            // Empty publish
+        }
+    }
 }
 
 task("prepareData") {
