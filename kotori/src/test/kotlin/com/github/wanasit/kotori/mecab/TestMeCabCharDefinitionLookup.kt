@@ -36,12 +36,20 @@ class TestMeCabCharDefinitionLookup {
         assertEquals(true, charDefinition.createCategoryToDefinition()[1]?.group)
 
         assertEquals(intArrayOf(0).toSet(), charDefinition.createCharToCategoryMapping()[0x0000.toChar()]?.toSet())
-        assertEquals(intArrayOf(1).toSet(), charDefinition.createCharToCategoryMapping()[0x30FC.toChar()]?.toSet())
+
+        assertEquals(intArrayOf(0).toSet(), charDefinition.createCharToCategoryMapping()[0xFF0F.toChar()]?.toSet())
+        assertEquals(intArrayOf(2, 3).toSet(), charDefinition.createCharToCategoryMapping()[0xFF10.toChar()]?.toSet())
+        assertEquals(intArrayOf(2, 3).toSet(), charDefinition.createCharToCategoryMapping()[0xFF11.toChar()]?.toSet())
+
         assertEquals(intArrayOf(2, 3).toSet(), charDefinition.createCharToCategoryMapping()[0xFF19.toChar()]?.toSet())
+        assertEquals(intArrayOf(0).toSet(), charDefinition.createCharToCategoryMapping()[0xFF1A.toChar()]?.toSet())
+
+        assertEquals(intArrayOf(0).toSet(), charDefinition.createCharToCategoryMapping()[0x30FB.toChar()]?.toSet())
+        assertEquals(intArrayOf(1).toSet(), charDefinition.createCharToCategoryMapping()[0x30FC.toChar()]?.toSet())
+        assertEquals(intArrayOf(0).toSet(), charDefinition.createCharToCategoryMapping()[0x30FD.toChar()]?.toSet())
     }
 
     @Test fun testReadingCharDefWithOverlapAssign() {
-
         val charDefinition = MeCabCharDefinition.readFromLines("""
             DEFAULT         0 1 0  
             SYMBOL	        1 1 0

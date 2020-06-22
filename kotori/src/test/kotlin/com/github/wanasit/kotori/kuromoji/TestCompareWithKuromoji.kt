@@ -39,6 +39,13 @@ class TestCompareWithKuromoji{
         assertTokensEqual(baseLineTokens, tokens)
     }
 
+    @Test fun testWithQuoteAndSigns() {
+        val text = "8日放送の「笑っていいとも!」"
+        val tokens = tokenizer.tokenize(text)
+        val baseLineTokens = baseLineTokenizer.tokenize(text)
+        assertTokensEqual(baseLineTokens, tokens)
+    }
+
     @Test fun testWithRandomText() {
         val text = "FMラジオ放送局、IT系での仕事人生活を経て、" +
                 "フリーランスモノ書き。好きなものは、クラゲ、ジュゴン、宇宙、絵本、コドモ、ヘンテコなもの。" +
@@ -48,6 +55,24 @@ class TestCompareWithKuromoji{
         val tokens = tokenizer.tokenize(text)
         val baseLineTokens = baseLineTokenizer.tokenize(text)
         assertTokensEqual(baseLineTokens, tokens)
+    }
+
+    @Test fun testSpecialCase() {
+        // Tested with original MeCab. Kuromoji actually gets this one wrong
+        val text = "夫・ダルビッシュ有との離婚問題で世間"
+        val tokens = tokenizer.tokenize(text)
+
+        assertEquals(listOf("夫", "・", "ダルビッシュ", "有", "と", "の", "離婚", "問題", "で", "世間"),
+                tokens.map { it.text })
+    }
+
+    @Test fun testAnotherSpecialCase() {
+        // Tested with original MeCab. Kuromoji actually gets this one wrong
+        val text = "【関連記事】・サムスン、ＭＳにくら"
+        val tokens = tokenizer.tokenize(text)
+
+        assertEquals(listOf("【", "関連", "記事", "】", "・", "サムスン", "、", "ＭＳ", "に", "くら"),
+                tokens.map { it.text })
     }
 
     private fun assertTokensEqual(baseLineTokens: List<Token>, tokens: List<Token>) {

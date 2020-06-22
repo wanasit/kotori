@@ -2,14 +2,21 @@ package com.github.wanasit.kotori.benchmark
 
 import com.github.wanasit.kotori.Token
 import com.github.wanasit.kotori.Tokenizer
+import com.github.wanasit.kotori.mecab.MeCabDictionary
+import com.github.wanasit.kotori.optimized.SimpleToken
 import java.lang.IllegalStateException
 
 object Tokenizers {
 
-    class SimpleToken(override val text: String, override val position: Int) : Token;
-
-    fun loadKotoriTokenizer() : Tokenizer {
+    fun loadKotoriDefaultTokenizer() : Tokenizer {
         return Tokenizer.createDefaultTokenizer()
+    }
+
+    fun loadKotoriIpadicTokenizer(
+            dictDir : String = "../data/mecab-ipadic-2.7.0-20070801"
+    ) : Tokenizer {
+        val dictionary = MeCabDictionary.readFromDirectory(dictDir)
+        return Tokenizer.create(dictionary)
     }
 
     fun loadSudachiTokenizer(

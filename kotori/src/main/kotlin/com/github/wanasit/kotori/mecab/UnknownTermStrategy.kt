@@ -32,12 +32,12 @@ object MeCabUnknownTermExtractionStrategy {
         val unknownTermEntries = MeCabTermEntry.readEntriesFromFileInputStream(unknownDefinitionInputStream, charset)
         val charDefinitionLookup = MeCabCharDefinition
                 .readFromCharDefinitionFileInputStream(charDefinitionInputStream, charset)
-        return create(unknownTermEntries, charDefinitionLookup)
+        return create(charDefinitionLookup, unknownTermEntries)
     }
 
     fun create(
-            unknownTermEntries: List<MeCabTermEntry>,
-            charDefinition: MeCabCharDefinition
+            charDefinition: MeCabCharDefinition,
+            unknownTermEntries: List<MeCabTermEntry>
     ): UnknownTermExtractionByCharacterCategory<MeCabTermEntry> {
 
         val categoryNameLookup = charDefinition.createCategoryNameLookup()
@@ -139,9 +139,6 @@ class MeCabCharDefinition constructor(
 
             val values = whiteSpaceRegEx.split(input)
             check(values.size >= 2)
-            if (values.size == 1) {
-                print("acg")
-            }
             val codepointParts = rangeSymbolRegex.split(values[0]);
             val categories: List<String> = values.drop(1);
 
@@ -155,7 +152,7 @@ class MeCabCharDefinition constructor(
                 upperCodepoint = Integer.decode(codepointParts[0])
             }
 
-            return categories.map { Triple(it, lowerCodepoint, upperCodepoint + 1) }
+            return categories.map { Triple(it, lowerCodepoint, upperCodepoint) }
         }
     }
 

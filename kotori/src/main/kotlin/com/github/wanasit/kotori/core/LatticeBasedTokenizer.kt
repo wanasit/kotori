@@ -1,11 +1,8 @@
 package com.github.wanasit.kotori.core
 
 import com.github.wanasit.kotori.*
+import com.github.wanasit.kotori.optimized.SimpleToken
 import com.github.wanasit.kotori.optimized.tries.*
-
-class LatticeBasedToken(
-        override val text: String,
-        override val position: Int) : Token;
 
 class LatticeBasedTokenizer(
         private val dictionary: Dictionary<*>
@@ -47,7 +44,7 @@ class LatticeBasedTokenizer(
         }
 
         val path = lattice.findPath()
-        return path?.map { LatticeBasedToken(it.termEntry.surfaceForm, it.location) } ?: emptyList()
+        return path?.map { SimpleToken(it.termEntry.surfaceForm, it.location) } ?: emptyList()
     }
 
     private fun processTerms(lattice: Lattice, text: String, i: Int) : Boolean {

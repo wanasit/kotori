@@ -99,7 +99,7 @@ class OptimizedDictionary(
 
             val categoryDefinitionFlattenArray = value.categoryToDefinition.flatMap { listOf(
                     (if (it.invoke) 1 else 0).toShort(),
-                    (if (it.invoke) 1 else 0).toShort(),
+                    (if (it.group) 1 else 0).toShort(),
                     it.length
             )}.toShortArray()
 

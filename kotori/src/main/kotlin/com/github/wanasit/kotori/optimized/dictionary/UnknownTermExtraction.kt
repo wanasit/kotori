@@ -75,7 +75,12 @@ class UnknownTermExtractionByCharacterCategory<T: TermEntry>(
                 continue
             }
 
-            val term = findConsecutiveCharsWithCategory(charCategory, text, index)
+            val term = if (categoryDefinition.group) {
+                findConsecutiveCharsWithCategory(charCategory, text, index)
+            } else {
+                text.substring(index, index + 1)
+            }
+
             categoryToTermEntries[charCategory].forEach {
                 results.add(ExtractedUnknownTermEntry(it, term))
             }
