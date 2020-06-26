@@ -9,8 +9,8 @@ dependencies {
 
     implementation(Kuromoji.Dependencies.Kuromoji_IPADIC)
 
-    implementation(Kotlin.Dependencies.stdlib)
+    implementation(Kotlin.Dependencies.Stdlib)
 
-    testImplementation(Kotlin.Dependencies.test)
-    testImplementation(Kotlin.Dependencies.testJunit)
+    testImplementation(Kotlin.Dependencies.Test)
+    testImplementation(Kotlin.Dependencies.TestJunit)
 }

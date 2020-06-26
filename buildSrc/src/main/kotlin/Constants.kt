@@ -16,11 +16,11 @@ object Kotori {
 object Kotlin {
     const val version = "1.3.70"
     object Dependencies {
-        const val stdlib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$version"
-        const val reflect = "org.jetbrains.kotlin:kotlin-reflect:$version"
+        const val Stdlib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$version"
+        const val Reflect = "org.jetbrains.kotlin:kotlin-reflect:$version"
 
-        const val test = "org.jetbrains.kotlin:kotlin-test:$version"
-        const val testJunit = "org.jetbrains.kotlin:kotlin-test-junit:$version"
+        const val Test = "org.jetbrains.kotlin:kotlin-test:$version"
+        const val TestJunit = "org.jetbrains.kotlin:kotlin-test-junit:$version"
     }
 }
 
@@ -31,6 +31,12 @@ object Kuromoji {
     }
 }
 
+object Sudachi {
+    const val version = "0.4.0"
+    object Dependencies {
+        const val Sudachi = "com.worksap.nlp:sudachi:$version"
+    }
+}
 
 object Release {
     object MavenPublish {
