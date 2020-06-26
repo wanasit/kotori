@@ -167,14 +167,14 @@ class MeCabCharDefinition constructor(
         val tmpArray: Array<MutableList<Int>?> = arrayOfNulls(0xffff + 1)
         categoryCharCodeRanges.forEach {
             val charCategory = categoryNameLookup[it.first]
-                    ?: throw IllegalArgumentException("Unknown category name '${it.first}'");
+            if (charCategory != null) {
+                for (i in it.second..it.third) {
 
-            for (i in it.second..it.third) {
-
-                if (tmpArray[i] == null) {
-                    tmpArray[i] = mutableListOf(charCategory)
-                } else {
-                    tmpArray[i]?.add(charCategory)
+                    if (tmpArray[i] == null) {
+                        tmpArray[i] = mutableListOf(charCategory)
+                    } else {
+                        tmpArray[i]?.add(charCategory)
+                    }
                 }
             }
         }

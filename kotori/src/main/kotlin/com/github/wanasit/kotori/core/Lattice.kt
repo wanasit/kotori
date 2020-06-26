@@ -18,7 +18,9 @@ interface Lattice {
 
 class LatticeNode (
     val termEntry: TermEntry,
-    val location: Int
+    val location: Int,
+    val leftId: Int,
+    val rightId: Int
 )
 
 typealias NodeId = Int
@@ -52,7 +54,7 @@ object Lattices : LatticeBuilder {
         override fun hasNodeEndingAtIndex(index: Int): Boolean = endLocationIndex.hasMemberAtIndex(index)
 
         override fun addNode(term: TermEntry, startIndex: Int, endIndex: Int) {
-            val node = LatticeNode(term, startIndex)
+            val node = LatticeNode(term, startIndex, term.leftId, term.rightId)
             val nodeId: NodeId = nodes.size
             nodes.add(node)
             startLocationIndex.insert(startIndex, nodeId)
@@ -64,7 +66,7 @@ object Lattices : LatticeBuilder {
             val previousNodes = IntArray(nodes.size) { NODE_ID_NONE }
 
             foreachNodeStartAtIndex(0) { rightNodeId, rightNode ->
-                val cost = connection.lookup(0, rightNode.termEntry.leftId)
+                val cost = connection.lookup(0, rightNode.leftId)
                 totalCosts[rightNodeId] += cost
                 previousNodes[rightNodeId] = NODE_ID_BEGIN
             }
@@ -76,7 +78,7 @@ object Lattices : LatticeBuilder {
 
                     foreachNodeEndAtIndex(location) { leftNodeId, leftNode ->
                         if (previousNodes[leftNodeId] != NODE_ID_NONE) {
-                            val cost = connection.lookup(leftNode.termEntry.rightId, rightNode.termEntry.leftId)
+                            val cost = connection.lookup(leftNode.rightId, rightNode.leftId)
                             val prevTotalCost = totalCosts[leftNodeId] + cost
                             if (prevTotalCost < minPrevCost) {
                                 minPrevCost = prevTotalCost
@@ -102,7 +104,7 @@ object Lattices : LatticeBuilder {
 
             foreachNodeEndAtIndex(length) { endingNodeId, endingNode ->
                 if (previousNodes[endingNodeId] != NODE_ID_NONE) {
-                    val cost = connection.lookup(endingNode.termEntry.rightId, 0)
+                    val cost = connection.lookup(endingNode.rightId, 0)
                     val prevTotalCost = totalCosts[endingNodeId] + cost
                     if (prevTotalCost < minEndingCost) {
                         minEndingCost = prevTotalCost

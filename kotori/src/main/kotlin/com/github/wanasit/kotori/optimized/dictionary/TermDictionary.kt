@@ -7,33 +7,22 @@ import com.github.wanasit.kotori.utils.IOUtils
 import java.io.InputStream
 import java.io.OutputStream
 
+open class ArrayTermDictionary<T: TermEntry>(
+        private val entries: Array<T>
+) : TermDictionary<T> {
 
-class StandardTermEntry(
-        override val surfaceForm: String,
-        override val leftId: Int,
-        override val rightId: Int,
-        override val cost: Int
-) : TermEntry {
+    override fun get(id: TermID): T? {
+        return entries[id]
+    }
 
-    constructor(other: TermEntry) : this(
-            surfaceForm=other.surfaceForm,
-            leftId=other.leftId,
-            rightId=other.rightId,
-            cost=other.cost
-    )
+    override fun iterator(): Iterator<Pair<TermID, T>> {
+        return entries.indices.map { it to entries[it] }.iterator()
+    }
 }
 
 class StandardTermDictionary(
-        private val termEntries: Array<StandardTermEntry>
-) : TermDictionary<StandardTermEntry> {
-
-    override fun get(id: TermID): StandardTermEntry? {
-        return termEntries[id]
-    }
-
-    override fun iterator(): Iterator<Pair<TermID, StandardTermEntry>> {
-        return termEntries.indices.map { it to termEntries[it] }.iterator()
-    }
+        private val entries: Array<StandardTermEntry>
+) : ArrayTermDictionary<StandardTermEntry>(entries) {
 
     companion object {
         fun copyOf(termDictionary: TermDictionary<TermEntry>) : StandardTermDictionary {
@@ -50,8 +39,23 @@ class StandardTermDictionary(
     }
 
     fun writeToOutputStream(outputStream: OutputStream) {
-        writeStandardTermEntriesToOutput(outputStream, termEntries)
+        writeStandardTermEntriesToOutput(outputStream, entries)
     }
+}
+
+class StandardTermEntry(
+        override val surfaceForm: String,
+        override val leftId: Int,
+        override val rightId: Int,
+        override val cost: Int
+) : TermEntry {
+
+    constructor(other: TermEntry) : this(
+            surfaceForm=other.surfaceForm,
+            leftId=other.leftId,
+            rightId=other.rightId,
+            cost=other.cost
+    )
 }
 
 internal fun readStandardTermEntriesFromInputStream(inputStream: InputStream) : Array<StandardTermEntry> {

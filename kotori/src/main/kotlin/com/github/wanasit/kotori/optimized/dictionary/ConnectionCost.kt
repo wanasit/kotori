@@ -10,7 +10,7 @@ import java.lang.UnsupportedOperationException
 class ConnectionCostArray(
         val fromIdCardinality: Int,
         val toIdCardinality: Int,
-        internal val table: ShortArray = ShortArray(fromIdCardinality * toIdCardinality) { 0 }
+        private val table: ShortArray = ShortArray(fromIdCardinality * toIdCardinality) { 0 }
 ) : ConnectionCost {
 
     override fun lookup(fromRightId: Int, toLeftId: Int): Int {
@@ -34,14 +34,16 @@ class ConnectionCostArray(
         fun copyOf(entries: Iterable<TermEntry>, connectionCost: ConnectionCost) : ConnectionCostArray {
             val maxLeftId = entries.map { it.leftId }.max()!!
             val maxRightId = entries.map { it.rightId }.max()!!
-            return copyOf(maxRightId + 1, maxLeftId + 1, connectionCost)
+            return copyOf(maxRightId + 1, maxLeftId + 1) { leftId, rightId ->
+                connectionCost.lookup(leftId, rightId)
+            }
         }
 
-        fun copyOf(fromIdCardinality: Int, toIdCardinality: Int, connectionCost: ConnectionCost) : ConnectionCostArray {
+        fun copyOf(fromIdCardinality: Int, toIdCardinality: Int, connectionCost: (leftId:Int, rightId:Int) -> Int) : ConnectionCostArray {
             val array = ConnectionCostArray(fromIdCardinality, toIdCardinality)
             for (i in 0 until fromIdCardinality) {
                 for (j in 0 until toIdCardinality) {
-                    array.put(i, j, connectionCost.lookup(i, j))
+                    array.put(i, j, connectionCost(i, j))
                 }
             }
 

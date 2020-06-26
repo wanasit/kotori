@@ -10,6 +10,7 @@ import com.github.wanasit.kotori.benchmark.dataset.repeat
 import com.github.wanasit.kotori.core.LatticeBasedTokenizer
 import com.github.wanasit.kotori.mecab.MeCabDictionary
 import com.github.wanasit.kotori.optimized.dictionary.OptimizedDictionary
+import com.github.wanasit.kotori.sudachi.Sudachi
 
 object Benchmark {
     public inline fun <Output> measureTimeMillisWithOutput(block: () -> Output): Pair<Long, Output> {
@@ -36,25 +37,32 @@ object Benchmark {
 fun main() {
     val dataset = LivedoorNews.loadDataset().repeat(5)
     val sudachi = runAndPrintTimeMillis("Loading Sudachi tokenizer") {
-        Tokenizers.loadSudachiTokenizer();
+        Sudachi.loadSudachiTokenizer()
     }
 
-    val kuromoji = runAndPrintTimeMillis("Loading Kuromoji tokenizer") {
-        Tokenizers.loadKuromojiIpadicTokenizer();
+    val kotoriSudachiDict = runAndPrintTimeMillis("Loading Kotori tokenizer (with SudachiDictionary)") {
+        Sudachi.loadKotoriTokenizerWithSudachiDict()
     }
 
-    val dict = runAndPrintTimeMillis("Loading Kotori Dictionary") {
-        OptimizedDictionary.readFromResource()
+    val kuromoji = runAndPrintTimeMillis("Loading Kuromoji tokenizer (with IPADict)") {
+        Tokenizers.loadKuromojiIpadicTokenizer()
     }
 
-    val kotori = runAndPrintTimeMillis("Building Kotori Tokenizer") {
-        Tokenizer.create(dict)
+    val kotoriIpaDict = runAndPrintTimeMillis("Loading Kotori tokenizer (with IPADict)") {
+        Tokenizers.loadKotoriIpadicTokenizer()
     }
 
+    val kotoriDefault = runAndPrintTimeMillis("Loading Kotori tokenizer (default)") {
+        Tokenizer.createDefaultTokenizer()
+    }
+
+    runBenchmark(kuromoji, dataset)
+    runBenchmark(kotoriIpaDict, dataset)
 
     runBenchmark(sudachi, dataset)
-    runBenchmark(kuromoji, dataset)
-    runBenchmark(kotori, dataset)
+    runBenchmark(kotoriSudachiDict, dataset)
+
+    runBenchmark(kotoriDefault, dataset)
 }
 
 fun runBenchmark(tokenizer: Tokenizer, dataset: Collection<TextDatasetEntry>) {
