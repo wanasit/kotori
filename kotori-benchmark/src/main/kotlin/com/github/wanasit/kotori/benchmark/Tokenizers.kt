@@ -9,17 +9,6 @@ import java.lang.IllegalStateException
 
 object Tokenizers {
 
-    fun loadKotoriDefaultTokenizer() : Tokenizer {
-        return Tokenizer.createDefaultTokenizer()
-    }
-
-    fun loadKotoriIpadicTokenizer(
-            dictDir : String = "../data/mecab-ipadic-2.7.0-20070801"
-    ) : Tokenizer {
-        val dictionary = MeCabDictionary.readFromDirectory(dictDir)
-        return Tokenizer.create(dictionary)
-    }
-
     fun loadKuromojiIpadicTokenizer() : Tokenizer {
         val innerTokenizer = com.atilika.kuromoji.ipadic.Tokenizer()
         return object : Tokenizer {
@@ -30,10 +19,6 @@ object Tokenizers {
                 return innerTokenizer.toString()
             }
         }
-    }
-
-    fun loadKotoriSudachiDictTokenizer(): Tokenizer {
-        return Sudachi.loadKotoriTokenizerWithSudachiDict()
     }
 
     fun loadSudachiTokenizer(): Tokenizer {

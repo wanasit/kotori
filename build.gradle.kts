@@ -6,7 +6,6 @@ plugins {
     java
     kotlin("jvm") version Kotlin.version
 
-    id("de.undercouch.download") version "4.0.4"
     id("com.palantir.git-version") version "0.12.3"
 
     id(Release.MavenPublish.plugin)

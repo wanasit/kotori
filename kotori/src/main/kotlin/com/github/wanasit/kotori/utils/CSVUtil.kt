@@ -1,9 +1,5 @@
 package com.github.wanasit.kotori.utils
 
-//private const val QUOTE = '"'
-//private const val COMMA = ','
-//private const val QUOTE_ESCAPED = "\"\""
-
 object CSVUtil {
 
     fun writeLine(vararg input: Any,

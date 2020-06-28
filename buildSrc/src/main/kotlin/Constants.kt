@@ -48,9 +48,3 @@ object Release {
         const val plugin = "com.jfrog.bintray"
     }
 }
-
-object Data {
-
-    const val SudachiDictVersion = "sudachi-dictionary-20200330"
-    const val MecabIpadicVersion = "mecab-ipadic-2.7.0-20070801"
-}

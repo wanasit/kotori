@@ -31,7 +31,7 @@ task<JavaExec>("downloadTatoeba") {
     classpath = sourceSets["main"].runtimeClasspath
 }
 
-task<JavaExec>("runBenchmark") {
+task<JavaExec>("benchmark") {
     dependsOn(":prepareTestingData")
     main = "com.github.wanasit.kotori.benchmark.BenchmarkKt"
     classpath = sourceSets["main"].runtimeClasspath

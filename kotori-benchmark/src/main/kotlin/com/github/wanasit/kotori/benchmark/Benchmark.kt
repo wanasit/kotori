@@ -1,83 +1,82 @@
 package com.github.wanasit.kotori.benchmark
 
+import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.subcommands
+import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.types.choice
+import com.github.wanasit.kotori.Dictionary
+import com.github.wanasit.kotori.TermEntry
 import com.github.wanasit.kotori.Tokenizer
-import com.github.wanasit.kotori.benchmark.Benchmark.measureTimeMillisWithOutput
-import com.github.wanasit.kotori.benchmark.Benchmark.measureTimeNanoWithOutput
-import com.github.wanasit.kotori.benchmark.Benchmark.runAndPrintTimeMillis
+import com.github.wanasit.kotori.benchmark.dataset.LivedoorNewsDataset
 import com.github.wanasit.kotori.benchmark.dataset.TatoebaDataset
 import com.github.wanasit.kotori.benchmark.dataset.TextDatasetEntry
-import com.github.wanasit.kotori.sudachi.Sudachi
+import com.github.wanasit.kotori.dictionary.Dictionaries
+import com.github.wanasit.kotori.sudachi.dictionary.SudachiDictionary
+import com.github.wanasit.kotori.utils.format
+import com.github.wanasit.kotori.utils.measureTimeMillisWithOutput
+import com.github.wanasit.kotori.utils.measureTimeNanoWithOutput
+import com.github.wanasit.kotori.utils.runAndPrintTimeMillis
 
-object Benchmark {
-    inline fun <Output> measureTimeMillisWithOutput(block: () -> Output): Pair<Long, Output> {
-        val start = System.currentTimeMillis()
-        val output = block()
-        return System.currentTimeMillis() - start to output
+class Benchmark: CliktCommand() {
+    val dataset: String by option().choice("tatoeba", "livedoor-news").default("tatoeba")
+    val tokenizer by option().choice("kotori", "kuromoji", "sudachi").default("kotori")
+    val dictionary: String? by option().choice("ipadic", "sudachi-small")
+
+    override fun run() {
+
+        val dataset = runAndPrintTimeMillis("Loading [${this.dataset}] dataset") {
+            when (this.dataset) {
+                "tatoeba" -> TatoebaDataset.loadJapaneseSentences()
+                "livedoor-news" -> LivedoorNewsDataset.loadDataset()
+                else -> throw UnsupportedOperationException()
+            }
+        }
+
+        val tokenizer = if (tokenizer == "kotori") {
+            val dictionary: Dictionary<TermEntry>? = runAndPrintTimeMillis("Loading [${this.dictionary?:"<default>"}] dictionary") {
+                when (this.dictionary) {
+                    "ipadic" -> Dictionaries.Mecab.loadIpadic()
+                    "sudachi-small" -> SudachiDictionary.readSystemDictionary(Dictionaries.Sudachi.smallDictionaryPath())
+                    else -> Dictionary.readDefaultFromResource()
+                }
+            }
+
+            runAndPrintTimeMillis("Building tokenizer with [${this.dictionary?:"<default>"}] dictionary") {
+                Tokenizer.create(dictionary ?: throw java.lang.IllegalStateException())
+            }
+
+        } else {
+            runAndPrintTimeMillis("Loading [${this.tokenizer}] tokenizer") {
+                when (this.tokenizer) {
+                    "kuromoji" -> Tokenizers.loadKuromojiIpadicTokenizer()
+                    "sudachi" -> Tokenizers.loadSudachiTokenizer()
+                    else -> throw UnsupportedOperationException()
+                }
+            }
+        }
+
+        runBenchmark(tokenizer, dataset)
     }
-
-    inline fun <Output> measureTimeNanoWithOutput(block: () -> Output): Pair<Long, Output> {
-        val start = System.nanoTime()
-        val output = block()
-        return System.nanoTime() - start to output
-    }
-
-    inline fun <Output> runAndPrintTimeMillis(msg: String, block: () -> Output) : Output {
-        val (time, output) = measureTimeMillisWithOutput { block() }
-        println("[$msg] took $time ms")
-        return output;
-    }
-}
-
-// ---------------------------------------------------------
-
-fun main() {
-    val dataset = TatoebaDataset.loadJapaneseSentences()
-    val sudachi = runAndPrintTimeMillis("Loading Sudachi tokenizer") {
-        Sudachi.loadSudachiTokenizer()
-    }
-
-    val kotoriSudachiDict = runAndPrintTimeMillis("Loading Kotori tokenizer (with SudachiDictionary)") {
-        Sudachi.loadKotoriTokenizerWithSudachiDict()
-    }
-
-    val kuromoji = runAndPrintTimeMillis("Loading Kuromoji tokenizer (with IPADict)") {
-        Tokenizers.loadKuromojiIpadicTokenizer()
-    }
-
-    val kotoriIpaDict = runAndPrintTimeMillis("Loading Kotori tokenizer (with IPADict)") {
-        Tokenizers.loadKotoriIpadicTokenizer()
-    }
-
-    val kotoriDefault = runAndPrintTimeMillis("Loading Kotori tokenizer (default)") {
-        Tokenizer.createDefaultTokenizer()
-    }
-
-    runBenchmark(kuromoji, dataset)
-    runBenchmark(kotoriIpaDict, dataset)
-
-    runBenchmark(sudachi, dataset)
-    runBenchmark(kotoriSudachiDict, dataset)
-
-    runBenchmark(kotoriDefault, dataset)
 }
 
 fun runBenchmark(tokenizer: Tokenizer, dataset: Collection<TextDatasetEntry>) {
-    println("----------------------------------------------------------")
-    println("Benchmarking ${tokenizer} with ${dataset.size} text entries " +
-            "(${dataset.map { it.text.length }.sum()} total characters)" )
+    println("Benchmarking ${tokenizer} with ${dataset.size.format()} text entries " +
+            "(${dataset.map { it.text.length }.sum().format()} total characters)" )
 
     val (warmUpTimeMillis, warmUpTokenCount) = measureTimeMillisWithOutput {
         runCountToken(tokenizer, dataset, 3);
     }
 
-    println("Finished warming up: $warmUpTimeMillis ms ($warmUpTokenCount tokens extracted)")
+    println("Finished warming up: ${warmUpTimeMillis.format()} ms (${warmUpTokenCount.format()} tokens extracted)")
 
-    for (epoch in 1..5) {
+    for (epoch in 1..10) {
         val (time, tokenCount) = measureTimeNanoWithOutput { runCountToken(tokenizer, dataset); }
 
         val perToken = time / tokenCount
         val perDocument = time / dataset.size
-        println("Benchmark epoch $epoch: $perDocument ns per document ($tokenCount tokens extracted, $perToken ns per token)")
+        println("Benchmark epoch ${epoch.format("%2d")}: $perDocument ns per document " +
+                "(${tokenCount.format()} tokens extracted, $perToken ns per token)")
     }
 }
 
@@ -92,3 +91,5 @@ fun runCountToken(tokenizer: Tokenizer,
 
     return totalTokenCount;
 }
+
+fun main(args: Array<String>) = Benchmark().main(args)

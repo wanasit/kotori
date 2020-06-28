@@ -65,8 +65,8 @@ object Compare {
 fun main() {
     val dataset = LivedoorNewsDataset.loadDataset()
 
-    val baseTokenizer = Tokenizers.loadSudachiTokenizer()
-    val tokenizer = Tokenizers.loadKotoriSudachiDictTokenizer()
+    val baseTokenizer = Tokenizers.loadKuromojiIpadicTokenizer()
+    val tokenizer = Tokenizer.createDefaultTokenizer()
 
     Compare.compareTokenizers(dataset, baseTokenizer, tokenizer) { datasetEntry, baseResult, result, diffIndex ->
 

@@ -25,18 +25,19 @@ object TatoebaDataset {
     }
 
     fun loadJapaneseSentences(dataDir:String = DEFAULT_DATA_DIR) : Dataset<TatoebaSentencEntry> {
-        return loadSentences(dataDir).filter {
+        return loadSentencesAsSequence(dataDir).filter {
             it.language == "jpn"
-        }
+        }.toList()
     }
 
-    fun loadSentences(dataDir:String = DEFAULT_DATA_DIR) : Dataset<TatoebaSentencEntry> {
+    private fun loadSentencesAsSequence(dataDir:String = DEFAULT_DATA_DIR) : Sequence<TatoebaSentencEntry> {
         /**
          * 1	cmn	我們試試看！
          * 2	cmn	我该去睡觉了。
          * ...
          */
         return File(File(dataDir), FILENAME).readLines()
+                .asSequence()
                 .map { CSVUtil.parseLine(it, separator = '\t', quote = null) }
                 .map { TatoebaSentencEntry(it[1], it[2]) }
     }

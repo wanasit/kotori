@@ -37,8 +37,7 @@ class TestIndexedIntArray {
         for (i in 0..1000) {
             index.insert(0, i)
         }
-
-        val members = index.getMemberAtIndex(0)
+        
         assertEquals(IntRange(0, 1000).toList(), index.getMemberAtIndex(0))
     }
 
