@@ -74,12 +74,12 @@ but its tokenization is optimized to be faster than other JVM-based tokenizers (
 The following is statistic from tokenizing Japanese sentences from [Tatoeba](https://tatoeba.org/eng/) 
 (193,898 sentences entries, 3,561,854 total characters) on Macbook Pro 2020 (2.4 GHz 8-Core Intel Core i9).
 
-|   |  Token Count  | Time (per document) |  Time (per token)  |
+|   |  Token Count  | Time (ns per document) |  Time (ns per token)  |
 |---|---:|---:|---:|
-|Kuromoji (IPADIC) | 2,264,560 | 10,095 ns| 864ns |
-|**Kotori (IPADIC)**   | 2,264,705 | **8,190 ns**| **701ns** |
-|Sudachi (sudachi-dictionary-20200330-small)   | 2,308,873 | 27,352 ns| 2296 ns |
-|Kotori (sudachi-dictionary-20200330-small)   | 2,157,820 | 13,079 ns| 1175 ns |
+|Kuromoji (IPADIC) | 2,264,560 | 10,095 | 864 |
+|**Kotori (IPADIC)**   | 2,264,705 | **8,190**| **701** |
+|Sudachi (sudachi-dictionary-20200330-small)  | 2,308,873 | 27,352 | 2296 |
+|Kotori (sudachi-dictionary-20200330-small)   | 2,157,820 | 13,079 | 1175 |
 
 #### (Speculative) What makes Kotori fast
 
