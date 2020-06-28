@@ -20,7 +20,7 @@ class LatticeBasedTokenizer(
                     .add(termId)
         }
 
-        dfa = HybridArrayTrie(trie)
+        dfa = TransitionArrayTrie(trie)
         table = Array(dfa.size()) {
             outputTable[it]?.map { dictionary.terms[it]!! }?.toTypedArray() ?: arrayOf()
         }

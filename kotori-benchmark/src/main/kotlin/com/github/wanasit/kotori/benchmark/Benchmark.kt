@@ -70,14 +70,21 @@ fun runBenchmark(tokenizer: Tokenizer, dataset: Collection<TextDatasetEntry>) {
 
     println("Finished warming up: ${warmUpTimeMillis.format()} ms (${warmUpTokenCount.format()} tokens extracted)")
 
+    val recordedPerToken = mutableListOf<Long>()
+    val recordedPerDocument = mutableListOf<Long>()
     for (epoch in 1..10) {
         val (time, tokenCount) = measureTimeNanoWithOutput { runCountToken(tokenizer, dataset); }
 
         val perToken = time / tokenCount
         val perDocument = time / dataset.size
-        println("Benchmark epoch ${epoch.format("%2d")}: $perDocument ns per document " +
-                "(${tokenCount.format()} tokens extracted, $perToken ns per token)")
+        println("Benchmark epoch ${epoch.format("%2d")}: ${perDocument.format("%6d")} ns per document " +
+                "(${tokenCount.format()} tokens extracted, ${perToken.format("%4d")} ns per token)")
+        recordedPerToken.add(perToken)
+        recordedPerDocument.add(perDocument)
     }
+
+    println("Averge: ${recordedPerDocument.average()} ns per document")
+    println("Averge: ${recordedPerToken.average()} ns per token")
 }
 
 fun runCountToken(tokenizer: Tokenizer,

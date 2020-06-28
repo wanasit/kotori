@@ -4,7 +4,7 @@ import kotlin.math.max
 
 private const val NOT_USED = -1
 
-class HybridArrayTrie(baseDFA: MutableDFA) : DFA {
+class TransitionArrayTrie(baseDFA: MutableDFA) : DFA {
 
     private var baseArray: IntArray
     private var nextArray: IntArray

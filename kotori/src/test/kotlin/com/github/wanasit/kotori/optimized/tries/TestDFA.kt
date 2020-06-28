@@ -2,8 +2,6 @@ package com.github.wanasit.kotori.optimized.tries
 
 import org.junit.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
-import kotlin.test.assertTrue
 
 class TestDFA {
 
@@ -26,7 +24,7 @@ class TestDFA {
         base.insert("aaa")
         base.insert("cda")
 
-        val trie = HybridArrayTrie(base)
+        val trie = TransitionArrayTrie(base)
         assertEquals(base.get("abc"), trie.get("abc"))
         assertEquals(base.get("aaa"), trie.get("aaa"))
         assertEquals(base.get("cda"), trie.get("cda"))
