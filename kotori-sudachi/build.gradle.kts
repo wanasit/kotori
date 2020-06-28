@@ -13,3 +13,7 @@ dependencies {
     testImplementation(Kotlin.Dependencies.Test)
     testImplementation(Kotlin.Dependencies.TestJunit)
 }
+
+tasks.withType<Test> {
+    dependsOn(":prepareTestingData")
+}

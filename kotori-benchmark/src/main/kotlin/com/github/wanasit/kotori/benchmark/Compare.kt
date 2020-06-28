@@ -2,7 +2,7 @@ package com.github.wanasit.kotori.benchmark
 
 import com.github.wanasit.kotori.Token
 import com.github.wanasit.kotori.Tokenizer
-import com.github.wanasit.kotori.benchmark.dataset.LivedoorNews
+import com.github.wanasit.kotori.benchmark.dataset.LivedoorNewsDataset
 import com.github.wanasit.kotori.benchmark.dataset.TextDatasetEntry
 import kotlin.math.max
 import kotlin.math.min
@@ -63,7 +63,7 @@ object Compare {
 // ---------------------------------------------------------
 
 fun main() {
-    val dataset = LivedoorNews.loadDataset()
+    val dataset = LivedoorNewsDataset.loadDataset()
 
     val baseTokenizer = Tokenizers.loadSudachiTokenizer()
     val tokenizer = Tokenizers.loadKotoriSudachiDictTokenizer()

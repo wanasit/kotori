@@ -1,4 +1,4 @@
 include("kotori")
 include("kotori-benchmark")
-include("kotori-dictionary-builder")
+include("kotori-dictionaries")
 include("kotori-sudachi")

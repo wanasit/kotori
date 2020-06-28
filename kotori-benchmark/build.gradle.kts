@@ -5,10 +5,12 @@ plugins {
 
 dependencies {
     implementation(project(":kotori"))
+    implementation(project(":kotori-dictionaries"))
     implementation(project(":kotori-sudachi"))
 
     implementation(Kuromoji.Dependencies.Kuromoji_IPADIC)
-    implementation("com.beust:klaxon:5.0.1")
+    implementation("com.github.ajalt:clikt:2.7.1")
+    implementation("org.rauschig:jarchivelib:0.7.1")
 
     implementation(Kotlin.Dependencies.Stdlib)
     implementation(Kotlin.Dependencies.Reflect)
@@ -17,10 +19,25 @@ dependencies {
     testImplementation(Kotlin.Dependencies.TestJunit)
 }
 
+task<JavaExec>("downloadLivedoorNews") {
+    args = listOf("livedoor-news")
+    main = "com.github.wanasit.kotori.benchmark.DownloadDatasetKt"
+    classpath = sourceSets["main"].runtimeClasspath
+}
+
+task<JavaExec>("downloadTatoeba") {
+    args = listOf("tatoeba")
+    main = "com.github.wanasit.kotori.benchmark.DownloadDatasetKt"
+    classpath = sourceSets["main"].runtimeClasspath
+}
+
 task<JavaExec>("runBenchmark") {
-
-    dependsOn(":prepareData")
-
+    dependsOn(":prepareTestingData")
     main = "com.github.wanasit.kotori.benchmark.BenchmarkKt"
     classpath = sourceSets["main"].runtimeClasspath
+}
+
+tasks.withType<Test> {
+    dependsOn(":prepareTestingData")
+    maxHeapSize = "2048m"
 }

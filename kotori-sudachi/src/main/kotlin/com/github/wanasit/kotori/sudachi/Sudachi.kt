@@ -11,7 +11,7 @@ import java.lang.IllegalStateException
 object Sudachi {
 
     fun loadKotoriTokenizerWithSudachiDict(
-            systemDict:String = "../data/sudachi-dictionary-20200330/system_small.dic"
+            systemDict:String = "../data/sudachi-dictionary/system_small.dic"
     ) : Tokenizer {
 
         val unknownTermExtraction = SudachiUnknownTermExtraction.readDefaultMeCabUnknownTermExtraction()
@@ -20,9 +20,8 @@ object Sudachi {
         return Tokenizer.create(dictionary)
     }
 
-
     fun loadSudachiTokenizer(
-            systemDict:String = "../data/sudachi-dictionary-20200330/system_small.dic"
+            systemDict:String = "../data/sudachi-dictionary/system_small.dic"
     ) : Tokenizer {
         val factory = com.worksap.nlp.sudachi.DictionaryFactory()
         val settings = """

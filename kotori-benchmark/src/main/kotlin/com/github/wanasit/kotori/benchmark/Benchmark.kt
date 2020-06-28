@@ -4,28 +4,24 @@ import com.github.wanasit.kotori.Tokenizer
 import com.github.wanasit.kotori.benchmark.Benchmark.measureTimeMillisWithOutput
 import com.github.wanasit.kotori.benchmark.Benchmark.measureTimeNanoWithOutput
 import com.github.wanasit.kotori.benchmark.Benchmark.runAndPrintTimeMillis
-import com.github.wanasit.kotori.benchmark.dataset.LivedoorNews
+import com.github.wanasit.kotori.benchmark.dataset.TatoebaDataset
 import com.github.wanasit.kotori.benchmark.dataset.TextDatasetEntry
-import com.github.wanasit.kotori.benchmark.dataset.repeat
-import com.github.wanasit.kotori.core.LatticeBasedTokenizer
-import com.github.wanasit.kotori.mecab.MeCabDictionary
-import com.github.wanasit.kotori.optimized.dictionary.OptimizedDictionary
 import com.github.wanasit.kotori.sudachi.Sudachi
 
 object Benchmark {
-    public inline fun <Output> measureTimeMillisWithOutput(block: () -> Output): Pair<Long, Output> {
+    inline fun <Output> measureTimeMillisWithOutput(block: () -> Output): Pair<Long, Output> {
         val start = System.currentTimeMillis()
         val output = block()
         return System.currentTimeMillis() - start to output
     }
 
-    public inline fun <Output> measureTimeNanoWithOutput(block: () -> Output): Pair<Long, Output> {
+    inline fun <Output> measureTimeNanoWithOutput(block: () -> Output): Pair<Long, Output> {
         val start = System.nanoTime()
         val output = block()
         return System.nanoTime() - start to output
     }
 
-    public inline fun <Output> runAndPrintTimeMillis(msg: String, block: () -> Output) : Output {
+    inline fun <Output> runAndPrintTimeMillis(msg: String, block: () -> Output) : Output {
         val (time, output) = measureTimeMillisWithOutput { block() }
         println("[$msg] took $time ms")
         return output;
@@ -35,7 +31,7 @@ object Benchmark {
 // ---------------------------------------------------------
 
 fun main() {
-    val dataset = LivedoorNews.loadDataset().repeat(5)
+    val dataset = TatoebaDataset.loadJapaneseSentences()
     val sudachi = runAndPrintTimeMillis("Loading Sudachi tokenizer") {
         Sudachi.loadSudachiTokenizer()
     }
