@@ -2,27 +2,14 @@ package com.github.wanasit.kotori.optimized.dictionary
 
 import com.github.wanasit.kotori.TermDictionary
 import com.github.wanasit.kotori.TermEntry
-import com.github.wanasit.kotori.TermID
+import com.github.wanasit.kotori.TermEntryArray
 import com.github.wanasit.kotori.utils.IOUtils
 import java.io.InputStream
 import java.io.OutputStream
 
-open class ArrayTermDictionary<T: TermEntry>(
-        private val entries: Array<T>
-) : TermDictionary<T> {
-
-    override fun get(id: TermID): T? {
-        return entries[id]
-    }
-
-    override fun iterator(): Iterator<Pair<TermID, T>> {
-        return entries.indices.map { it to entries[it] }.iterator()
-    }
-}
-
 class StandardTermDictionary(
         private val entries: Array<StandardTermEntry>
-) : ArrayTermDictionary<StandardTermEntry>(entries) {
+) : TermEntryArray<StandardTermEntry>(entries) {
 
     companion object {
         fun copyOf(termDictionary: TermDictionary<TermEntry>) : StandardTermDictionary {

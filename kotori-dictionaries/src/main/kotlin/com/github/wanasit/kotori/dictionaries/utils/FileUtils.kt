@@ -1,4 +1,4 @@
-package com.github.wanasit.kotori.dictionary.utils
+package com.github.wanasit.kotori.dictionaries.utils
 
 import org.rauschig.jarchivelib.ArchiverFactory
 import java.io.File

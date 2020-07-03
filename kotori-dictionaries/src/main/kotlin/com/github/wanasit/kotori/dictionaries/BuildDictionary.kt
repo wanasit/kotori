@@ -1,4 +1,4 @@
-package com.github.wanasit.kotori.dictionary
+package com.github.wanasit.kotori.dictionaries
 
 import com.github.wanasit.kotori.Dictionary
 import com.github.wanasit.kotori.Tokenizer

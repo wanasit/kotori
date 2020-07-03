@@ -1,6 +1,5 @@
 package com.github.wanasit.kotori
 
-import com.github.wanasit.kotori.mecab.MeCabDictionary
 import com.github.wanasit.kotori.optimized.dictionary.OptimizedDictionary
 
 
@@ -26,16 +25,27 @@ open class Dictionary <out T: TermEntry> (
  * - きる, 772 (Verb-ru), 772 (Verb-ru), 12499
  * - ...
  */
-typealias TermID = Int
-interface TermDictionary<out T: TermEntry> : Iterable<Pair<TermID, T>>{
-    operator fun get(id: TermID): T?
-}
-
 interface TermEntry {
     val surfaceForm: String
     val leftId: Int
     val rightId: Int
     val cost: Int
+}
+
+typealias TermID = Int
+interface TermDictionary<out T: TermEntry> : Iterable<Pair<TermID, T>>{
+    operator fun get(id: TermID): T?
+
+    fun size() : Int = this.asSequence().count()
+}
+
+open class TermEntryArray<T: TermEntry>(
+        private val entries: Array<T>
+) : TermDictionary<T> {
+    override fun get(id: TermID): T? = entries[id]
+    override fun size(): Int = entries.size
+    override fun iterator(): Iterator<Pair<TermID, T>> =
+            entries.indices.map { it to entries[it] }.iterator()
 }
 
 /**

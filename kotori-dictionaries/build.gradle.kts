@@ -16,31 +16,31 @@ dependencies {
 
 task<JavaExec>("downloadMecabIpadic") {
     args = listOf("mecab-ipadic")
-    main = "com.github.wanasit.kotori.dictionary.DownloadDictionaryKt"
+    main = "com.github.wanasit.kotori.dictionaries.DownloadDictionaryKt"
     classpath = sourceSets["main"].runtimeClasspath
 }
 
 task<JavaExec>("downloadMecabUnidic") {
     args = listOf("mecab-unidic")
-    main = "com.github.wanasit.kotori.dictionary.DownloadDictionaryKt"
+    main = "com.github.wanasit.kotori.dictionaries.DownloadDictionaryKt"
     classpath = sourceSets["main"].runtimeClasspath
 }
 
 task<JavaExec>("downloadSudachiSmallDict") {
     args = listOf("sudachi-small")
-    main = "com.github.wanasit.kotori.dictionary.DownloadDictionaryKt"
+    main = "com.github.wanasit.kotori.dictionaries.DownloadDictionaryKt"
     classpath = sourceSets["main"].runtimeClasspath
 }
 
 task<JavaExec>("downloadSudachiCoreDict") {
     args = listOf("sudachi-core")
-    main = "com.github.wanasit.kotori.dictionary.DownloadDictionaryKt"
+    main = "com.github.wanasit.kotori.dictionaries.DownloadDictionaryKt"
     classpath = sourceSets["main"].runtimeClasspath
 }
 
 task<JavaExec>("downloadSudachiFullDict") {
     args = listOf("sudachi-full")
-    main = "com.github.wanasit.kotori.dictionary.DownloadDictionaryKt"
+    main = "com.github.wanasit.kotori.dictionaries.DownloadDictionaryKt"
     classpath = sourceSets["main"].runtimeClasspath
 }
 

@@ -1,27 +1,24 @@
-package com.github.wanasit.kotori.dictionary
+package com.github.wanasit.kotori.dictionaries
 
 import com.github.wanasit.kotori.Dictionary
-import com.github.wanasit.kotori.dictionary.utils.downloadIntoDirectory
-import com.github.wanasit.kotori.dictionary.utils.extractIntoDirectory
+import com.github.wanasit.kotori.dictionaries.utils.downloadIntoDirectory
+import com.github.wanasit.kotori.dictionaries.utils.extractIntoDirectory
 import com.github.wanasit.kotori.mecab.MeCabDictionary
 import com.github.wanasit.kotori.mecab.MeCabTermEntry
 import java.io.File
+import java.nio.charset.Charset
 
 object Dictionaries {
-    const val SudachiDictVersion = "sudachi-dictionary-20200330"
-    const val MecabIpadicVersion = "mecab-ipadic-2.7.0-20070801"
-
-    const val MecabIpadicDataDirectory = "../data/$MecabIpadicVersion"
 
     object Mecab {
         const val DEFAULT_DATA_DIR = "../data/mecab-dictionary/"
 
-        fun loadIpadic(dataDir: String = Sudachi.DEFAULT_DATA_DIR): Dictionary<MeCabTermEntry> {
-            return MeCabDictionary.readFromDirectory(File(dataDir, MECAB_IPADIC_VERSION).path)
+        fun loadIpadic(dataDir: String = DEFAULT_DATA_DIR, charset: Charset = MeCabDictionary.DEFAULT_CHARSET): Dictionary<MeCabTermEntry> {
+            return MeCabDictionary.readFromDirectory(File(dataDir, MECAB_IPADIC_VERSION).path, charset)
         }
 
-        fun loadUnidic(dataDir: String = Sudachi.DEFAULT_DATA_DIR): Dictionary<MeCabTermEntry> {
-            return MeCabDictionary.readFromDirectory(File(dataDir, MECAB_UNIDIC_VERSION).path)
+        fun loadUnidic(dataDir: String = DEFAULT_DATA_DIR, charset: Charset = Charsets.UTF_8): Dictionary<MeCabTermEntry> {
+            return MeCabDictionary.readFromDirectory(File(dataDir, MECAB_UNIDIC_VERSION).path, charset)
         }
 
         private const val MECAB_IPADIC_VERSION = "mecab-ipadic-2.7.0-20070801"
@@ -58,7 +55,7 @@ object Dictionaries {
             }
 
             val downloadedFile = downloadIntoDirectory(dataDirFile, MECAB_IPADIC_DOWNLOAD_URL)
-            extractIntoDirectory(File(dataDirFile, MECAB_IPADIC_VERSION), downloadedFile)
+            extractIntoDirectory(dataDirFile, downloadedFile)
             downloadedFile.delete()
         }
     }

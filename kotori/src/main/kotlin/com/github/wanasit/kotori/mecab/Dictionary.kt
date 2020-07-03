@@ -17,7 +17,6 @@ object MeCabDictionary {
     const val FILE_NAME_CONNECTION_COST = "matrix.def"
     const val FILE_NAME_UNKNOWN_ENTRIES = "unk.def"
     const val FILE_NAME_CHARACTER_DEFINITION = "char.def"
-    const val FILE_NAME_TERM_DICTIONARY = "terms.csv"
 
     val DEFAULT_CHARSET: Charset = Charset.forName("EUC-JP")
 
@@ -44,44 +43,41 @@ object MeCabDictionary {
     }
 }
 
-class MeCabTermDictionary(
-        private val entryList: List<MeCabTermEntry>
-) : TermDictionary<MeCabTermEntry> {
+object MeCabTermDictionary {
 
-    companion object {
-        fun readFromDirectory(
-                dir: String,
-                charset: Charset
-        ) : MeCabTermDictionary {
-            val dictionaryEntries = File(dir).listFiles()
-                    ?.filter { it.isFile && it.name.endsWith("csv") }
-                    ?.sortedBy { it.name }
-                    ?.flatMap { MeCabTermEntry.readEntriesFromFileInputStream(it.inputStream(), charset=charset) }
-                    ?: throw IllegalArgumentException("Can't read dictionary files in $dir")
+    fun readFromDirectory(
+            dir: String,
+            charset: Charset
+    ) : TermDictionary<MeCabTermEntry> {
+        val dictionaryEntries = File(dir).listFiles()
+                ?.filter { it.isFile && it.name.endsWith("csv") }
+                ?.sortedBy { it.name }
+                ?.flatMap { MeCabTermEntry.readEntriesFromFileInputStream(it.inputStream(), charset=charset) }
+                ?: throw IllegalArgumentException("Can't read dictionary files in $dir")
 
-            return MeCabTermDictionary(dictionaryEntries)
-        }
-
-        fun readFromInputStream(inputStream: InputStream, charset: Charset) : MeCabTermDictionary{
-            val dictionaryEntries = MeCabTermEntry.readEntriesFromFileInputStream(inputStream, charset)
-            return MeCabTermDictionary(dictionaryEntries)
-        }
+        return TermEntryArray(dictionaryEntries.toTypedArray())
     }
 
-    override fun get(id: Int): MeCabTermEntry? {
-        return entryList[id]
-    }
-
-    override fun iterator(): Iterator<Pair<TermID, MeCabTermEntry>> {
-        return entryList.mapIndexed { i, entry ->  i to entry}.iterator()
+    fun readFromInputStream(inputStream: InputStream, charset: Charset) : TermDictionary<MeCabTermEntry> {
+        val dictionaryEntries = MeCabTermEntry.readEntriesFromFileInputStream(inputStream, charset)
+        return TermEntryArray(dictionaryEntries.toTypedArray())
     }
 }
 
-class MeCabTermEntry(
+/**
+ * Ref: http://taku910.github.io/mecab/dic.html
+ */
+data class MeCabTermEntry(
         override val surfaceForm: String,
         override val leftId: Int,
         override val rightId: Int,
-        override val cost: Int
+        override val cost: Int,
+        val partOfSpeech: String?,
+        val partOfSpeechSubCategory1: String?,
+        val partOfSpeechSubCategory2: String?,
+        val partOfSpeechSubCategory3: String?,
+        val conjugationType: String?,
+        val conjugationForm: String?
 ) : TermEntry {
 
     companion object {
@@ -98,7 +94,13 @@ class MeCabTermEntry(
                     surfaceForm = values[0],
                     leftId = values[1].toInt(),
                     rightId = values[2].toInt(),
-                    cost = values[3].toInt()
+                    cost = values[3].toInt(),
+                    partOfSpeech = values[4],
+                    partOfSpeechSubCategory1 = values[5],
+                    partOfSpeechSubCategory2 = values[6],
+                    partOfSpeechSubCategory3 = values[7],
+                    conjugationType = values[8],
+                    conjugationForm = values[9]
             )
         }
     }

@@ -44,7 +44,7 @@ object Compare {
             }
 
             if (baseResult[i].text != result[i].text ||
-                    baseResult[i].position != result[i].position) {
+                    baseResult[i].index != result[i].index) {
 
                 return i to i
             }
@@ -73,8 +73,8 @@ fun main() {
         val baseResultSub = baseResult.subList(max(0, diffIndex-5), min(baseResult.size, diffIndex + 5))
         val resultSub = result.subList(max(0, diffIndex-5), min(result.size, diffIndex + 5))
 
-        val text = datasetEntry.text.substring(baseResultSub.first().position,
-                baseResultSub.last().position + baseResultSub.last().text.length)
+        val text = datasetEntry.text.substring(baseResultSub.first().index,
+                baseResultSub.last().index + baseResultSub.last().text.length)
 
         println("==========================================================")
         println("On '${datasetEntry.title}'")

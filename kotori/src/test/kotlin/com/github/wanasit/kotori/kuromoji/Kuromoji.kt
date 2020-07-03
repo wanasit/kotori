@@ -6,7 +6,7 @@ import com.github.wanasit.kotori.Tokenizer
 
 object Kuromoji {
 
-    class SimpleToken(override val text: String, override val position: Int) : Token;
+    class SimpleToken(override val text: String, override val index: Int) : Token;
 
     fun loadTokenizer() : Tokenizer {
         val innerTokenizer = com.atilika.kuromoji.ipadic.Tokenizer()

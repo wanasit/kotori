@@ -1,7 +1,7 @@
 package com.github.wanasit.kotori.benchmark.dataset
 
-import com.github.wanasit.kotori.dictionary.utils.downloadIntoDirectory
-import com.github.wanasit.kotori.dictionary.utils.extractIntoDirectory
+import com.github.wanasit.kotori.dictionaries.utils.downloadIntoDirectory
+import com.github.wanasit.kotori.dictionaries.utils.extractIntoDirectory
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node

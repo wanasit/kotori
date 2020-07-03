@@ -1,7 +1,7 @@
 package com.github.wanasit.kotori.benchmark.dataset
 
-import com.github.wanasit.kotori.dictionary.utils.downloadIntoDirectory
-import com.github.wanasit.kotori.dictionary.utils.extractIntoDirectory
+import com.github.wanasit.kotori.dictionaries.utils.downloadIntoDirectory
+import com.github.wanasit.kotori.dictionaries.utils.extractIntoDirectory
 import com.github.wanasit.kotori.utils.CSVUtil
 import java.io.File
 

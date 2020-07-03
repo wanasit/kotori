@@ -1,12 +1,7 @@
 package com.github.wanasit.kotori.sudachi.dictionary
 
-import com.github.wanasit.kotori.ConnectionCost
-import com.github.wanasit.kotori.Dictionary
-import com.github.wanasit.kotori.TermEntry
-import com.github.wanasit.kotori.UnknownTermExtractionStrategy
-import com.github.wanasit.kotori.optimized.dictionary.ArrayTermDictionary
+import com.github.wanasit.kotori.*
 import com.github.wanasit.kotori.optimized.dictionary.ConnectionCostArray
-import com.github.wanasit.kotori.optimized.dictionary.OptimizedDictionary
 import com.worksap.nlp.sudachi.dictionary.BinaryDictionary
 import com.worksap.nlp.sudachi.dictionary.Grammar
 import com.worksap.nlp.sudachi.dictionary.Lexicon
@@ -19,7 +14,7 @@ object SudachiDictionary {
 
         val dictionary = BinaryDictionary.readSystemDictionary(dictionaryFile)
         val terms = SudachiTermEntry.fromLexicon(dictionary.lexicon)
-        val termDictionary = ArrayTermDictionary(terms.toTypedArray())
+        val termDictionary = TermEntryArray(terms.toTypedArray())
 
         val maxLeftId = terms.map { it.leftId }.max() ?: 0
         val maxRightId = terms.map { it.rightId }.max() ?: 0

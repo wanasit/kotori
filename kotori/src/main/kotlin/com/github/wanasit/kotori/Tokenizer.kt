@@ -22,5 +22,5 @@ interface Tokenizer {
 
 interface Token {
     val text: String
-    val position: Int
+    val index: Int
 }

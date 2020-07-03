@@ -1,7 +1,6 @@
 package com.github.wanasit.kotori.benchmark
 
 import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.choice
@@ -11,7 +10,7 @@ import com.github.wanasit.kotori.Tokenizer
 import com.github.wanasit.kotori.benchmark.dataset.LivedoorNewsDataset
 import com.github.wanasit.kotori.benchmark.dataset.TatoebaDataset
 import com.github.wanasit.kotori.benchmark.dataset.TextDatasetEntry
-import com.github.wanasit.kotori.dictionary.Dictionaries
+import com.github.wanasit.kotori.dictionaries.Dictionaries
 import com.github.wanasit.kotori.sudachi.dictionary.SudachiDictionary
 import com.github.wanasit.kotori.utils.format
 import com.github.wanasit.kotori.utils.measureTimeMillisWithOutput
