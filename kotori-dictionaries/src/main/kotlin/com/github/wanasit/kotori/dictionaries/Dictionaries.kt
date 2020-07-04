@@ -10,13 +10,18 @@ import java.nio.charset.Charset
 
 object Dictionaries {
 
+
     object Mecab {
         const val DEFAULT_DATA_DIR = "../data/mecab-dictionary/"
 
+        @JvmStatic
+        @JvmOverloads
         fun loadIpadic(dataDir: String = DEFAULT_DATA_DIR, charset: Charset = MeCabDictionary.DEFAULT_CHARSET): Dictionary<MeCabTermFeatures> {
             return MeCabDictionary.readFromDirectory(File(dataDir, MECAB_IPADIC_VERSION).path, charset)
         }
 
+        @JvmStatic
+        @JvmOverloads
         fun loadUnidic(dataDir: String = DEFAULT_DATA_DIR, charset: Charset = Charsets.UTF_8): Dictionary<MeCabTermFeatures> {
             return MeCabDictionary.readFromDirectory(File(dataDir, MECAB_UNIDIC_VERSION).path, charset)
         }

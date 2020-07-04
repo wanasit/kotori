@@ -3,7 +3,7 @@ package com.github.wanasit.kotori.optimized
 import com.github.wanasit.kotori.Token
 import java.lang.UnsupportedOperationException
 
-data class DefaultToken<TermFeatures>(
+data class PlainToken<TermFeatures>(
         override val text: String,
         override val index: Int) : Token<TermFeatures> {
 

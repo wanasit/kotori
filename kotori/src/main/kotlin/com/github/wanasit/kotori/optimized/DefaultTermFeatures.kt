@@ -19,7 +19,7 @@ class DefaultTermFeatures(
             val flattenTermEntry = IOUtils.readIntArray(inputStream, size * 3)
             val surfaceForms = IOUtils.readStringArray(inputStream, size)
             return Array(size) {
-                DefaultTermEntry(surfaceForms[it],
+                PlainTermEntry(surfaceForms[it],
                         flattenTermEntry[it*3], flattenTermEntry[it*3 + 1], flattenTermEntry[it*3 + 2], DefaultTermFeatures())
             }
         }

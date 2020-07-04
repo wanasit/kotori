@@ -3,7 +3,7 @@ package com.github.wanasit.kotori.sudachi
 import com.github.wanasit.kotori.Token
 import com.github.wanasit.kotori.Tokenizer
 import com.github.wanasit.kotori.mecab.MeCabTermFeatures
-import com.github.wanasit.kotori.optimized.DefaultToken
+import com.github.wanasit.kotori.optimized.PlainToken
 import com.github.wanasit.kotori.sudachi.dictionary.SudachiDictionary
 import com.github.wanasit.kotori.sudachi.dictionary.SudachiUnknownTermExtraction
 import java.lang.IllegalStateException
@@ -42,7 +42,7 @@ object Sudachi {
 
         return object : Tokenizer<MeCabTermFeatures> {
             override fun tokenize(text: String): List<Token<MeCabTermFeatures>> =
-                    innerTokenizer.tokenize(text).map { DefaultToken<MeCabTermFeatures>(it.surface(), it.begin()) }
+                    innerTokenizer.tokenize(text).map { PlainToken<MeCabTermFeatures>(it.surface(), it.begin()) }
 
             override fun toString(): String {
                 return innerTokenizer.toString()

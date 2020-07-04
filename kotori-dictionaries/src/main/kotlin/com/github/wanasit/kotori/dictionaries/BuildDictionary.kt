@@ -6,7 +6,6 @@ import com.github.wanasit.kotori.Tokenizer
 import com.github.wanasit.kotori.mecab.MeCabTermFeatures
 import com.github.wanasit.kotori.optimized.*
 import com.github.wanasit.kotori.optimized.unknown.UnknownTermExtractionByCharacterCategory
-import com.github.wanasit.kotori.utils.termEntries
 import java.io.File
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
@@ -16,18 +15,18 @@ fun main() {
 
     val sourceDictionary = Dictionaries.Mecab.loadIpadic()
 
-    val terms = DefaultTermDictionary.copyOf(sourceDictionary.terms) {
-        DefaultTermEntry(it, DefaultTermFeatures())
+    val terms = PlainTermDictionary.copyOf(sourceDictionary.terms) {
+        PlainTermEntry(it, DefaultTermFeatures())
     }
 
     val unknownExtraction = UnknownTermExtractionByCharacterCategory.copyOf(
             sourceDictionary.unknownExtraction as UnknownTermExtractionByCharacterCategory<MeCabTermFeatures>
     ) { termEntry ->
-        DefaultTermEntry(termEntry, DefaultTermFeatures())
+        PlainTermEntry(termEntry, DefaultTermFeatures())
     }
 
     val optimizedDictionary = DefaultDictionary(
-            terms, sourceDictionary.connection as DefaultConnectionCost, unknownExtraction
+            terms, sourceDictionary.connection as PlainConnectionCostTable, unknownExtraction
     )
 
     val targetFilename = "../kotori/src/main/resources/default_dictionary.bin.gz"

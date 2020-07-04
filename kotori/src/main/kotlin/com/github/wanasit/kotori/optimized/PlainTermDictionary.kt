@@ -3,16 +3,10 @@ package com.github.wanasit.kotori.optimized
 import com.github.wanasit.kotori.TermDictionary
 import com.github.wanasit.kotori.TermEntry
 import com.github.wanasit.kotori.TermID
-import com.github.wanasit.kotori.optimized.unknown.UnknownTermExtractionByCharacterCategory
 
-open class DefaultTermDictionary<TermFeatures>(
+open class PlainTermDictionary<TermFeatures>(
         private val entries: Array<out TermEntry<TermFeatures>>
 ) : TermDictionary<TermFeatures> {
-
-
-
-
-
 
     override fun get(id: TermID): TermEntry<TermFeatures>? = entries[id]
     override fun size(): Int = entries.size
@@ -23,9 +17,9 @@ open class DefaultTermDictionary<TermFeatures>(
         fun <SrcFeatures, DstFeatures> copyOf(
                 other: TermDictionary<SrcFeatures>,
                 transformEntry: (TermEntry<SrcFeatures>) -> TermEntry<DstFeatures>
-        ) : DefaultTermDictionary<DstFeatures> {
+        ) : PlainTermDictionary<DstFeatures> {
             val entries = other.map { transformEntry(it.second) }.toTypedArray()
-            return DefaultTermDictionary(entries)
+            return PlainTermDictionary(entries)
         }
     }
 }

@@ -21,7 +21,7 @@ object MeCabUnknownTermExtractionStrategy {
             charDefinitionInputStream: InputStream,
             charset: Charset
     ) : UnknownTermExtractionByCharacterCategory<MeCabTermFeatures> {
-        val unknownTermEntries = MeCabTermEntry.readEntriesFromFileInputStream(unknownDefinitionInputStream, charset)
+        val unknownTermEntries = MeCabTermFeatures.readTermEntriesFromFileInputStream(unknownDefinitionInputStream, charset)
         val charDefinitionLookup = MeCabCharDefinition
                 .readFromCharDefinitionFileInputStream(charDefinitionInputStream, charset)
         return create(charDefinitionLookup, unknownTermEntries)

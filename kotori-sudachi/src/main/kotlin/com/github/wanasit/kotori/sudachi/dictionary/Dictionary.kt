@@ -2,8 +2,8 @@ package com.github.wanasit.kotori.sudachi.dictionary
 
 import com.github.wanasit.kotori.*
 import com.github.wanasit.kotori.mecab.MeCabTermFeatures
-import com.github.wanasit.kotori.optimized.DefaultConnectionCost
-import com.github.wanasit.kotori.optimized.DefaultTermDictionary
+import com.github.wanasit.kotori.optimized.PlainConnectionCostTable
+import com.github.wanasit.kotori.optimized.PlainTermDictionary
 import com.worksap.nlp.sudachi.dictionary.BinaryDictionary
 import com.worksap.nlp.sudachi.dictionary.Grammar
 import com.worksap.nlp.sudachi.dictionary.Lexicon
@@ -18,7 +18,7 @@ object SudachiDictionary {
 
         val dictionary = BinaryDictionary.readSystemDictionary(dictionaryFile)
         val terms = SudachiTermEntry.fromLexicon(dictionary.lexicon)
-        val termDictionary = DefaultTermDictionary(terms.toTypedArray())
+        val termDictionary = PlainTermDictionary(terms.toTypedArray())
 
         val maxLeftId = terms.map { it.leftId }.max() ?: 0
         val maxRightId = terms.map { it.rightId }.max() ?: 0
@@ -32,7 +32,7 @@ object SudachiDictionary {
 
 
     private fun connectionCostFromGrammar(grammar: Grammar, maxLeftId: Int, maxRightId: Int) : ConnectionCost {
-        return DefaultConnectionCost.copyOf(maxLeftId + 1, maxRightId + 1) { leftId, rightId ->
+        return PlainConnectionCostTable.copyOf(maxLeftId + 1, maxRightId + 1) { leftId, rightId ->
             grammar.getConnectCost(leftId.toShort(), rightId.toShort()).toInt()
         }
     }

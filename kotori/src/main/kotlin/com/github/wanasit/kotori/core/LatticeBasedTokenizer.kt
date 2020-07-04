@@ -1,7 +1,7 @@
 package com.github.wanasit.kotori.core
 
 import com.github.wanasit.kotori.*
-import com.github.wanasit.kotori.optimized.DefaultToken
+import com.github.wanasit.kotori.optimized.PlainToken
 import com.github.wanasit.kotori.optimized.tries.*
 
 class LatticeBasedTokenizer<TermFeatures>(
@@ -44,7 +44,7 @@ class LatticeBasedTokenizer<TermFeatures>(
         }
 
         val path = lattice.findPath()
-        return path?.map { DefaultToken<TermFeatures>(it.termEntry.surfaceForm, it.location) } ?: emptyList()
+        return path?.map { PlainToken<TermFeatures>(it.termEntry.surfaceForm, it.location) } ?: emptyList()
     }
 
     private fun processTerms(lattice: Lattice, text: String, i: Int) : Boolean {

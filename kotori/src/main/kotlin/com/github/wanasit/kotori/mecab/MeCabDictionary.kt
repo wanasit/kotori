@@ -1,9 +1,10 @@
 package com.github.wanasit.kotori.mecab
 
-import com.github.wanasit.kotori.*
-import com.github.wanasit.kotori.optimized.DefaultConnectionCost
-import com.github.wanasit.kotori.optimized.DefaultTermDictionary
-import com.github.wanasit.kotori.utils.CSVUtil
+import com.github.wanasit.kotori.ConnectionCost
+import com.github.wanasit.kotori.Dictionary
+import com.github.wanasit.kotori.TermDictionary
+import com.github.wanasit.kotori.optimized.PlainConnectionCostTable
+import com.github.wanasit.kotori.optimized.PlainTermDictionary
 import java.io.File
 import java.io.InputStream
 import java.nio.charset.Charset
@@ -53,53 +54,15 @@ object MeCabTermDictionary {
         val dictionaryEntries = File(dir).listFiles()
                 ?.filter { it.isFile && it.name.endsWith("csv") }
                 ?.sortedBy { it.name }
-                ?.flatMap { MeCabTermEntry.readEntriesFromFileInputStream(it.inputStream(), charset=charset) }
+                ?.flatMap { MeCabTermFeatures.readTermEntriesFromFileInputStream(it.inputStream(), charset=charset) }
                 ?: throw IllegalArgumentException("Can't read dictionary files in $dir")
 
-        return DefaultTermDictionary(dictionaryEntries.toTypedArray())
+        return PlainTermDictionary(dictionaryEntries.toTypedArray())
     }
 
     fun readFromInputStream(inputStream: InputStream, charset: Charset) : TermDictionary<MeCabTermFeatures> {
-        val dictionaryEntries = MeCabTermEntry.readEntriesFromFileInputStream(inputStream, charset)
-        return DefaultTermDictionary(dictionaryEntries.toTypedArray())
-    }
-}
-
-/**
- * Ref: http://taku910.github.io/mecab/dic.html
- */
-data class MeCabTermEntry(
-        override val surfaceForm: String,
-        override val leftId: Int,
-        override val rightId: Int,
-        override val cost: Int,
-        override val features: MeCabTermFeatures
-) : TermEntry<MeCabTermFeatures> {
-
-    companion object {
-
-        fun readEntriesFromFileInputStream(inputStream: InputStream, charset: Charset) : List<MeCabTermEntry> {
-            return inputStream.reader(charset = charset)
-                    .readLines()
-                    .map { parseLine(it) }
-        }
-
-        private fun parseLine(line: String): MeCabTermEntry{
-            val values = CSVUtil.parseLine(line)
-            return MeCabTermEntry(
-                    surfaceForm = values[0],
-                    leftId = values[1].toInt(),
-                    rightId = values[2].toInt(),
-                    cost = values[3].toInt(),
-                    features = MeCabTermFeatures(
-                            partOfSpeech = values[4],
-                            partOfSpeechSubCategory1 = values[5],
-                            partOfSpeechSubCategory2 = values[6],
-                            partOfSpeechSubCategory3 = values[7],
-                            conjugationType = values[8],
-                            conjugationForm = values[9])
-            )
-        }
+        val dictionaryEntries = MeCabTermFeatures.readTermEntriesFromFileInputStream(inputStream, charset)
+        return PlainTermDictionary(dictionaryEntries.toTypedArray())
     }
 }
 
@@ -117,7 +80,7 @@ object MeCabConnectionCost {
         val cardinality = whiteSpaceRegEx.split(lines.get(0))
         val fromIdCardinality = cardinality[0].toInt()
         val toIdCardinality = cardinality[1].toInt()
-        val array = DefaultConnectionCost(fromIdCardinality, toIdCardinality)
+        val array = PlainConnectionCostTable(fromIdCardinality, toIdCardinality)
 
         lines.drop(1)
                 .forEach {
