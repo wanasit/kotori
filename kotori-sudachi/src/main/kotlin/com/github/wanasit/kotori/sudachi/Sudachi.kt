@@ -42,7 +42,9 @@ object Sudachi {
 
         return object : Tokenizer<MeCabTermFeatures> {
             override fun tokenize(text: String): List<Token<MeCabTermFeatures>> =
-                    innerTokenizer.tokenize(text).map { PlainToken<MeCabTermFeatures>(it.surface(), it.begin()) }
+                    innerTokenizer.tokenize(text).map { PlainToken(it.surface(), it.begin(),
+                            MeCabTermFeatures(partOfSpeech = it.partOfSpeech().first())
+                    ) }
 
             override fun toString(): String {
                 return innerTokenizer.toString()

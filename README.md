@@ -104,9 +104,9 @@ mostly, because Kotlin's `Array<T?>` has some overhead comparing to Java's nativ
 Benchmark can be run as a gradle task.
 
 ```bash
-./gradle benchmark
-./gradle benchmark --args='--tokenizer=kuromoji'
-./gradle benchmark --args='--tokenizer=kotori --dictionary=sudachi-small'
+./gradlew benchmark
+./gradlew benchmark --args='--tokenizer=kuromoji'
+./gradlew benchmark --args='--tokenizer=kotori --dictionary=sudachi-small'
 ```
 
 Check [the source code](https://github.com/wanasit/kotori/blob/master/kotori-benchmark/src/main/kotlin/com/github/wanasit/kotori/benchmark/Benchmark.kt) 

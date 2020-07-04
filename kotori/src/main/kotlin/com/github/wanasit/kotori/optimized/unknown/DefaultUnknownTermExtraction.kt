@@ -35,7 +35,7 @@ object DefaultUnknownTermExtraction {
             val entries = flattenCategoryToTermEntries.copyOfRange(
                     index, index + arraySizes[charcodeSize + it]).toList()
             index += arraySizes[charcodeSize + it]
-            entries as List<TermEntry<DefaultTermFeatures>>
+            entries
         }
 
         val categoryToDefinition = Array(charCategorySize) {

@@ -1,6 +1,7 @@
 package com.github.wanasit.kotori.core
 import com.github.wanasit.kotori.ConnectionCost
 import com.github.wanasit.kotori.TermEntry
+import com.github.wanasit.kotori.TermID
 import com.github.wanasit.kotori.optimized.arrays.IndexedIntArray
 import java.util.ArrayList
 
@@ -9,7 +10,7 @@ interface LatticeBuilder {
 }
 
 interface Lattice {
-    fun addNode(term:TermEntry<*>, startIndex: Int, endIndex: Int = startIndex + term.surfaceForm.length)
+    fun addNode(node: LatticeNode)
     fun hasNodeStartingAtIndex(index: Int): Boolean
     fun hasNodeEndingAtIndex(index: Int): Boolean
 
@@ -17,10 +18,13 @@ interface Lattice {
 }
 
 class LatticeNode (
-    val termEntry: TermEntry<*>,
-    val location: Int,
-    val leftId: Int,
-    val rightId: Int
+        val startIndex: Int,
+        val endIndex: Int,
+
+        val termID: TermID,
+        val leftId: Int,
+        val rightId: Int,
+        val cost: Int
 )
 
 typealias NodeId = Int
@@ -53,16 +57,15 @@ object Lattices : LatticeBuilder {
 
         override fun hasNodeEndingAtIndex(index: Int): Boolean = endLocationIndex.hasMemberAtIndex(index)
 
-        override fun addNode(term: TermEntry<*>, startIndex: Int, endIndex: Int) {
-            val node = LatticeNode(term, startIndex, term.leftId, term.rightId)
+        override fun addNode(node: LatticeNode) {
             val nodeId: NodeId = nodes.size
             nodes.add(node)
-            startLocationIndex.insert(startIndex, nodeId)
-            endLocationIndex.insert(endIndex, nodeId)
+            startLocationIndex.insert(node.startIndex, nodeId)
+            endLocationIndex.insert(node.endIndex, nodeId)
         }
 
         override fun findPath(): List<LatticeNode>? {
-            val totalCosts = IntArray(nodes.size) { nodes[it].termEntry.cost }
+            val totalCosts = IntArray(nodes.size) { nodes[it].cost }
             val previousNodes = IntArray(nodes.size) { NODE_ID_NONE }
 
             foreachNodeStartAtIndex(0) { rightNodeId, rightNode ->

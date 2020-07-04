@@ -14,7 +14,7 @@ object Tokenizers {
         val innerTokenizer = com.atilika.kuromoji.ipadic.Tokenizer()
         return object : Tokenizer<EmptyFeatures> {
             override fun tokenize(text: String): List<Token<EmptyFeatures>> =
-                    innerTokenizer.tokenize(text).map { PlainToken<EmptyFeatures>(it.surface, it.position) }
+                    innerTokenizer.tokenize(text).map { PlainToken<EmptyFeatures>(it.surface, it.position, EmptyFeatures()) }
 
             override fun toString(): String {
                 return innerTokenizer.toString()

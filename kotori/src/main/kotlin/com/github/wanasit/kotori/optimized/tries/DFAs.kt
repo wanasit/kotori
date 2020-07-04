@@ -20,9 +20,6 @@ interface DFA {
     }
 }
 
-/**
- * Deterministic Finite Automata (DFA)
- */
 interface MutableDFA : DFA {
     fun getTransition(state: State) : Map<Input, State>
     fun nextOrPutState(state: State, input: Input) : State

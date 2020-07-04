@@ -2,10 +2,9 @@ package com.github.wanasit.kotori.optimized.tries
 
 import kotlin.math.max
 
-private const val NOT_USED = -1
-
 class TransitionArrayTrie(baseDFA: MutableDFA) : DFA {
 
+    private val NOT_USED = -1
     private var baseArray: IntArray
     private var nextArray: IntArray
     private val rootTransition: IntArray
