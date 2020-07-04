@@ -17,6 +17,7 @@ dependencies {
 
 tasks.withType<Test> {
     dependsOn(":prepareTestingData")
+    maxHeapSize = "4096m"
 }
 
 task<Jar>("sourcesJar") {

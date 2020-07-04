@@ -75,7 +75,7 @@ class TestCompareWithKuromoji{
                 tokens.map { it.text })
     }
 
-    private fun assertTokensEqual(baseLineTokens: List<Token>, tokens: List<Token>) {
+    private fun assertTokensEqual(baseLineTokens: List<Token<*>>, tokens: List<Token<*>>) {
         assertEquals(baseLineTokens.map { it.text }, tokens.map { it.text })
     }
 }

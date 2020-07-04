@@ -1,7 +1,9 @@
 package com.github.wanasit.kotori.sudachi.dictionary
 
 import com.github.wanasit.kotori.*
-import com.github.wanasit.kotori.optimized.dictionary.ConnectionCostArray
+import com.github.wanasit.kotori.mecab.MeCabTermFeatures
+import com.github.wanasit.kotori.optimized.DefaultConnectionCost
+import com.github.wanasit.kotori.optimized.DefaultTermDictionary
 import com.worksap.nlp.sudachi.dictionary.BinaryDictionary
 import com.worksap.nlp.sudachi.dictionary.Grammar
 import com.worksap.nlp.sudachi.dictionary.Lexicon
@@ -10,11 +12,13 @@ import com.worksap.nlp.sudachi.dictionary.Lexicon
 object SudachiDictionary {
 
     fun readSystemDictionary(
-            dictionaryFile: String, unknownExtraction: UnknownTermExtractionStrategy? = null): Dictionary<SudachiTermEntry> {
+            dictionaryFile: String,
+            unknownExtraction: UnknownTermExtractionStrategy<MeCabTermFeatures>? = null
+    ): Dictionary<MeCabTermFeatures> {
 
         val dictionary = BinaryDictionary.readSystemDictionary(dictionaryFile)
         val terms = SudachiTermEntry.fromLexicon(dictionary.lexicon)
-        val termDictionary = TermEntryArray(terms.toTypedArray())
+        val termDictionary = DefaultTermDictionary(terms.toTypedArray())
 
         val maxLeftId = terms.map { it.leftId }.max() ?: 0
         val maxRightId = terms.map { it.rightId }.max() ?: 0
@@ -28,7 +32,7 @@ object SudachiDictionary {
 
 
     private fun connectionCostFromGrammar(grammar: Grammar, maxLeftId: Int, maxRightId: Int) : ConnectionCost {
-        return ConnectionCostArray.copyOf(maxLeftId + 1, maxRightId + 1) {leftId, rightId ->
+        return DefaultConnectionCost.copyOf(maxLeftId + 1, maxRightId + 1) { leftId, rightId ->
             grammar.getConnectCost(leftId.toShort(), rightId.toShort()).toInt()
         }
     }
@@ -38,8 +42,9 @@ class SudachiTermEntry(
         override val surfaceForm: String,
         override val leftId: Int,
         override val rightId: Int,
-        override val cost: Int
-) : TermEntry {
+        override val cost: Int,
+        override val features: MeCabTermFeatures = MeCabTermFeatures()
+) : TermEntry<MeCabTermFeatures> {
 
     companion object {
         fun fromLexicon(lexicon: Lexicon) : List<SudachiTermEntry> {

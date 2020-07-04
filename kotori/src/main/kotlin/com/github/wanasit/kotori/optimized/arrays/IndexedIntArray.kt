@@ -1,4 +1,4 @@
-package com.github.wanasit.kotori.optimized
+package com.github.wanasit.kotori.optimized.arrays
 
 private val EMPTY_INT_ARRAY: IntArray = intArrayOf()
 private const val INIT_ARRAY_SIZE = 4

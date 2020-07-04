@@ -1,25 +1,17 @@
 package com.github.wanasit.kotori.mecab
 
-import com.github.wanasit.kotori.TermEntry
-import com.github.wanasit.kotori.optimized.dictionary.CharCategory
-import com.github.wanasit.kotori.optimized.dictionary.CharCategoryDefinition
-import com.github.wanasit.kotori.optimized.dictionary.UnknownTermExtractionByCharacterCategory
+import com.github.wanasit.kotori.optimized.unknown.CharCategory
+import com.github.wanasit.kotori.optimized.unknown.CharCategoryDefinition
+import com.github.wanasit.kotori.optimized.unknown.UnknownTermExtractionByCharacterCategory
 import java.io.InputStream
 import java.nio.charset.Charset
 import java.nio.file.Paths
-
-data class ExtractedUnknownTermEntry(
-        val unknownDictionaryEntry: MeCabTermEntry,
-        val term: String) : TermEntry by unknownDictionaryEntry {
-
-    override val surfaceForm: String = term
-}
 
 object MeCabUnknownTermExtractionStrategy {
 
     fun readFromDirectory(
             dir: String, charset: Charset = MeCabDictionary.DEFAULT_CHARSET
-    ) : UnknownTermExtractionByCharacterCategory<MeCabTermEntry> = readFromFileInputStreams(
+    ) : UnknownTermExtractionByCharacterCategory<MeCabTermFeatures> = readFromFileInputStreams(
             Paths.get(dir).resolve(MeCabDictionary.FILE_NAME_UNKNOWN_ENTRIES).toFile().inputStream(),
             Paths.get(dir).resolve(MeCabDictionary.FILE_NAME_CHARACTER_DEFINITION).toFile().inputStream(),
             charset)
@@ -28,7 +20,7 @@ object MeCabUnknownTermExtractionStrategy {
             unknownDefinitionInputStream: InputStream,
             charDefinitionInputStream: InputStream,
             charset: Charset
-    ) : UnknownTermExtractionByCharacterCategory<MeCabTermEntry> {
+    ) : UnknownTermExtractionByCharacterCategory<MeCabTermFeatures> {
         val unknownTermEntries = MeCabTermEntry.readEntriesFromFileInputStream(unknownDefinitionInputStream, charset)
         val charDefinitionLookup = MeCabCharDefinition
                 .readFromCharDefinitionFileInputStream(charDefinitionInputStream, charset)
@@ -38,7 +30,7 @@ object MeCabUnknownTermExtractionStrategy {
     fun create(
             charDefinition: MeCabCharDefinition,
             unknownTermEntries: List<MeCabTermEntry>
-    ): UnknownTermExtractionByCharacterCategory<MeCabTermEntry> {
+    ): UnknownTermExtractionByCharacterCategory<MeCabTermFeatures> {
 
         val categoryNameLookup = charDefinition.createCategoryNameLookup()
         val charToCategories = charDefinition.createCharToCategoryMapping(categoryNameLookup)

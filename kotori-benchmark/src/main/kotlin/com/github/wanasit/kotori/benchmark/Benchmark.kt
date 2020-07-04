@@ -4,6 +4,7 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.choice
+import com.github.wanasit.kotori.AnyTokenizer
 import com.github.wanasit.kotori.Dictionary
 import com.github.wanasit.kotori.TermEntry
 import com.github.wanasit.kotori.Tokenizer
@@ -33,7 +34,7 @@ class Benchmark: CliktCommand() {
         }
 
         val tokenizer = if (tokenizer == "kotori") {
-            val dictionary: Dictionary<TermEntry>? = runAndPrintTimeMillis("Loading [${this.dictionary?:"<default>"}] dictionary") {
+            val dictionary: Dictionary<*>? = runAndPrintTimeMillis("Loading [${this.dictionary?:"<default>"}] dictionary") {
                 when (this.dictionary) {
                     "ipadic" -> Dictionaries.Mecab.loadIpadic()
                     "sudachi-small" -> SudachiDictionary.readSystemDictionary(Dictionaries.Sudachi.smallDictionaryPath())
@@ -59,7 +60,7 @@ class Benchmark: CliktCommand() {
     }
 }
 
-fun runBenchmark(tokenizer: Tokenizer, dataset: Collection<TextDatasetEntry>) {
+fun runBenchmark(tokenizer: AnyTokenizer, dataset: Collection<TextDatasetEntry>) {
     println("Benchmarking ${tokenizer} with ${dataset.size.format()} text entries " +
             "(${dataset.map { it.text.length }.sum().format()} total characters)" )
 
@@ -86,7 +87,7 @@ fun runBenchmark(tokenizer: Tokenizer, dataset: Collection<TextDatasetEntry>) {
     println("Averge: ${recordedPerToken.average()} ns per token")
 }
 
-fun runCountToken(tokenizer: Tokenizer,
+fun runCountToken(tokenizer: AnyTokenizer,
                   dataset: Collection<TextDatasetEntry>,
                   epoch: Int = 1) : Int {
 

@@ -1,5 +1,7 @@
 package com.github.wanasit.kotori.benchmark
 
+import com.github.wanasit.kotori.AnyToken
+import com.github.wanasit.kotori.AnyTokenizer
 import com.github.wanasit.kotori.Token
 import com.github.wanasit.kotori.Tokenizer
 import com.github.wanasit.kotori.benchmark.dataset.LivedoorNewsDataset
@@ -11,12 +13,12 @@ object Compare {
 
     fun <T: TextDatasetEntry> compareTokenizers (
             dataset: Collection<T>,
-            baseTokenizer: Tokenizer,
-            tokenizer: Tokenizer,
+            baseTokenizer: AnyTokenizer,
+            tokenizer: AnyTokenizer,
             diffReport: ((
                     datasetEntry: T,
-                    baseResult: List<Token>,
-                    result: List<Token>,
+                    baseResult: List<AnyToken>,
+                    result: List<AnyToken>,
                     diffIndex: Int) -> Unit
             )?
     ) {
@@ -33,8 +35,8 @@ object Compare {
     }
 
     fun findDiffToken(
-            baseResult: List<Token>,
-            result: List<Token>
+            baseResult: List<AnyToken>,
+            result: List<AnyToken>
     ) : Pair<Int?, Int?>? {
 
         for (i in baseResult.indices) {

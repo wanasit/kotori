@@ -1,5 +1,6 @@
 package com.github.wanasit.kotori.sudachi
 
+import com.github.wanasit.kotori.AnyToken
 import com.github.wanasit.kotori.Token
 import org.junit.Test
 import kotlin.test.assertEquals
@@ -30,7 +31,7 @@ class TestCompareWithSudachi {
         assertTokensEqual(baseLineTokens, tokens)
     }
 
-    private fun assertTokensEqual(baseLineTokens: List<Token>, tokens: List<Token>) {
+    private fun assertTokensEqual(baseLineTokens: List<AnyToken>, tokens: List<AnyToken>) {
         assertEquals(baseLineTokens.map { it.text }, tokens.map { it.text })
     }
 }

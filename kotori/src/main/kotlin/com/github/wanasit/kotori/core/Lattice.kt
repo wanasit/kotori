@@ -1,7 +1,7 @@
 package com.github.wanasit.kotori.core
 import com.github.wanasit.kotori.ConnectionCost
 import com.github.wanasit.kotori.TermEntry
-import com.github.wanasit.kotori.optimized.IndexedIntArray
+import com.github.wanasit.kotori.optimized.arrays.IndexedIntArray
 import java.util.ArrayList
 
 interface LatticeBuilder {
@@ -9,7 +9,7 @@ interface LatticeBuilder {
 }
 
 interface Lattice {
-    fun addNode(term:TermEntry, startIndex: Int, endIndex: Int = startIndex + term.surfaceForm.length)
+    fun addNode(term:TermEntry<*>, startIndex: Int, endIndex: Int = startIndex + term.surfaceForm.length)
     fun hasNodeStartingAtIndex(index: Int): Boolean
     fun hasNodeEndingAtIndex(index: Int): Boolean
 
@@ -17,7 +17,7 @@ interface Lattice {
 }
 
 class LatticeNode (
-    val termEntry: TermEntry,
+    val termEntry: TermEntry<*>,
     val location: Int,
     val leftId: Int,
     val rightId: Int
@@ -53,7 +53,7 @@ object Lattices : LatticeBuilder {
 
         override fun hasNodeEndingAtIndex(index: Int): Boolean = endLocationIndex.hasMemberAtIndex(index)
 
-        override fun addNode(term: TermEntry, startIndex: Int, endIndex: Int) {
+        override fun addNode(term: TermEntry<*>, startIndex: Int, endIndex: Int) {
             val node = LatticeNode(term, startIndex, term.leftId, term.rightId)
             val nodeId: NodeId = nodes.size
             nodes.add(node)

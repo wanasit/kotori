@@ -1,4 +1,4 @@
-package com.github.wanasit.kotori.optimized
+package com.github.wanasit.kotori.optimized.arrays
 
 
 import org.junit.Test

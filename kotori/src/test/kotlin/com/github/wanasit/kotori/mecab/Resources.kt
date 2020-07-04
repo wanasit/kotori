@@ -10,7 +10,7 @@ const val FILE_NAME_TERM_DICTIONARY = "Adverb.csv"
 fun MeCabDictionary.readFromResource(
         namespace: String = DEFAULT_RESOURCE_NAMESPACE,
         charset: Charset = MeCabDictionary.DEFAULT_CHARSET
-) : Dictionary<MeCabTermEntry> {
+) : Dictionary<MeCabTermFeatures> {
 
     val termDictionary = MeCabTermDictionary.readFromInputStream(
             ResourceUtil.readResourceAsStream(namespace, FILE_NAME_TERM_DICTIONARY), charset)

@@ -1,14 +1,14 @@
 package com.github.wanasit.kotori.core
 
 import com.github.wanasit.kotori.*
-import com.github.wanasit.kotori.optimized.SimpleToken
+import com.github.wanasit.kotori.optimized.DefaultToken
 import com.github.wanasit.kotori.optimized.tries.*
 
-class LatticeBasedTokenizer(
-        private val dictionary: Dictionary<*>
-) : Tokenizer {
+class LatticeBasedTokenizer<TermFeatures>(
+        private val dictionary: Dictionary<TermFeatures>
+) : Tokenizer<TermFeatures> {
 
-    private val table: Array<Array<TermEntry>>
+    private val table: Array<Array<TermEntry<TermFeatures>>>
     private val dfa: DFA
 
     init {
@@ -26,7 +26,7 @@ class LatticeBasedTokenizer(
         }
     }
 
-    override fun tokenize(text: String): List<Token> {
+    override fun tokenize(text: String): List<Token<TermFeatures>> {
         val lattice = Lattices.createLattice(dictionary.connection, text.length)
 
         for (i in text.indices) {
@@ -44,7 +44,7 @@ class LatticeBasedTokenizer(
         }
 
         val path = lattice.findPath()
-        return path?.map { SimpleToken(it.termEntry.surfaceForm, it.location) } ?: emptyList()
+        return path?.map { DefaultToken<TermFeatures>(it.termEntry.surfaceForm, it.location) } ?: emptyList()
     }
 
     private fun processTerms(lattice: Lattice, text: String, i: Int) : Boolean {

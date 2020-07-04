@@ -4,7 +4,7 @@ import com.github.wanasit.kotori.Dictionary
 import com.github.wanasit.kotori.dictionaries.utils.downloadIntoDirectory
 import com.github.wanasit.kotori.dictionaries.utils.extractIntoDirectory
 import com.github.wanasit.kotori.mecab.MeCabDictionary
-import com.github.wanasit.kotori.mecab.MeCabTermEntry
+import com.github.wanasit.kotori.mecab.MeCabTermFeatures
 import java.io.File
 import java.nio.charset.Charset
 
@@ -13,11 +13,11 @@ object Dictionaries {
     object Mecab {
         const val DEFAULT_DATA_DIR = "../data/mecab-dictionary/"
 
-        fun loadIpadic(dataDir: String = DEFAULT_DATA_DIR, charset: Charset = MeCabDictionary.DEFAULT_CHARSET): Dictionary<MeCabTermEntry> {
+        fun loadIpadic(dataDir: String = DEFAULT_DATA_DIR, charset: Charset = MeCabDictionary.DEFAULT_CHARSET): Dictionary<MeCabTermFeatures> {
             return MeCabDictionary.readFromDirectory(File(dataDir, MECAB_IPADIC_VERSION).path, charset)
         }
 
-        fun loadUnidic(dataDir: String = DEFAULT_DATA_DIR, charset: Charset = Charsets.UTF_8): Dictionary<MeCabTermEntry> {
+        fun loadUnidic(dataDir: String = DEFAULT_DATA_DIR, charset: Charset = Charsets.UTF_8): Dictionary<MeCabTermFeatures> {
             return MeCabDictionary.readFromDirectory(File(dataDir, MECAB_UNIDIC_VERSION).path, charset)
         }
 

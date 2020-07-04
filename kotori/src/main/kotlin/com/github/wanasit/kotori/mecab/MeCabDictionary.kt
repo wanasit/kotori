@@ -1,7 +1,8 @@
 package com.github.wanasit.kotori.mecab
 
 import com.github.wanasit.kotori.*
-import com.github.wanasit.kotori.optimized.dictionary.ConnectionCostArray
+import com.github.wanasit.kotori.optimized.DefaultConnectionCost
+import com.github.wanasit.kotori.optimized.DefaultTermDictionary
 import com.github.wanasit.kotori.utils.CSVUtil
 import java.io.File
 import java.io.InputStream
@@ -23,7 +24,7 @@ object MeCabDictionary {
     fun readFromDirectory(
             dir: String,
             charset: Charset = DEFAULT_CHARSET
-    ) : Dictionary<MeCabTermEntry> {
+    ) : Dictionary<MeCabTermFeatures> {
 
         val dictionaryDir = Paths.get(dir)
         check(Files.isDirectory(dictionaryDir))
@@ -48,19 +49,19 @@ object MeCabTermDictionary {
     fun readFromDirectory(
             dir: String,
             charset: Charset
-    ) : TermDictionary<MeCabTermEntry> {
+    ) : TermDictionary<MeCabTermFeatures> {
         val dictionaryEntries = File(dir).listFiles()
                 ?.filter { it.isFile && it.name.endsWith("csv") }
                 ?.sortedBy { it.name }
                 ?.flatMap { MeCabTermEntry.readEntriesFromFileInputStream(it.inputStream(), charset=charset) }
                 ?: throw IllegalArgumentException("Can't read dictionary files in $dir")
 
-        return TermEntryArray(dictionaryEntries.toTypedArray())
+        return DefaultTermDictionary(dictionaryEntries.toTypedArray())
     }
 
-    fun readFromInputStream(inputStream: InputStream, charset: Charset) : TermDictionary<MeCabTermEntry> {
+    fun readFromInputStream(inputStream: InputStream, charset: Charset) : TermDictionary<MeCabTermFeatures> {
         val dictionaryEntries = MeCabTermEntry.readEntriesFromFileInputStream(inputStream, charset)
-        return TermEntryArray(dictionaryEntries.toTypedArray())
+        return DefaultTermDictionary(dictionaryEntries.toTypedArray())
     }
 }
 
@@ -72,13 +73,8 @@ data class MeCabTermEntry(
         override val leftId: Int,
         override val rightId: Int,
         override val cost: Int,
-        val partOfSpeech: String?,
-        val partOfSpeechSubCategory1: String?,
-        val partOfSpeechSubCategory2: String?,
-        val partOfSpeechSubCategory3: String?,
-        val conjugationType: String?,
-        val conjugationForm: String?
-) : TermEntry {
+        override val features: MeCabTermFeatures
+) : TermEntry<MeCabTermFeatures> {
 
     companion object {
 
@@ -95,12 +91,13 @@ data class MeCabTermEntry(
                     leftId = values[1].toInt(),
                     rightId = values[2].toInt(),
                     cost = values[3].toInt(),
-                    partOfSpeech = values[4],
-                    partOfSpeechSubCategory1 = values[5],
-                    partOfSpeechSubCategory2 = values[6],
-                    partOfSpeechSubCategory3 = values[7],
-                    conjugationType = values[8],
-                    conjugationForm = values[9]
+                    features = MeCabTermFeatures(
+                            partOfSpeech = values[4],
+                            partOfSpeechSubCategory1 = values[5],
+                            partOfSpeechSubCategory2 = values[6],
+                            partOfSpeechSubCategory3 = values[7],
+                            conjugationType = values[8],
+                            conjugationForm = values[9])
             )
         }
     }
@@ -120,7 +117,7 @@ object MeCabConnectionCost {
         val cardinality = whiteSpaceRegEx.split(lines.get(0))
         val fromIdCardinality = cardinality[0].toInt()
         val toIdCardinality = cardinality[1].toInt()
-        val array = ConnectionCostArray(fromIdCardinality, toIdCardinality)
+        val array = DefaultConnectionCost(fromIdCardinality, toIdCardinality)
 
         lines.drop(1)
                 .forEach {

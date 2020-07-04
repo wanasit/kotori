@@ -1,17 +1,18 @@
 package com.github.wanasit.kotori
 
-import com.github.wanasit.kotori.optimized.dictionary.OptimizedDictionary
+import com.github.wanasit.kotori.optimized.DefaultDictionary
+import com.github.wanasit.kotori.optimized.DefaultTermFeatures
 
 
-open class Dictionary <out T: TermEntry> (
-        open val terms: TermDictionary<T>,
+open class Dictionary <out TermFeatures> (
+        open val terms: TermDictionary<TermFeatures>,
         open val connection: ConnectionCost,
-        open val unknownExtraction: UnknownTermExtractionStrategy? = null
+        open val unknownExtraction: UnknownTermExtractionStrategy<TermFeatures>? = null
 ) {
     companion object {
         @JvmStatic
-        fun readDefaultFromResource(): Dictionary<TermEntry> {
-            return OptimizedDictionary.readFromResource()
+        fun readDefaultFromResource(): Dictionary<DefaultTermFeatures> {
+            return DefaultDictionary.readFromResource()
         }
     }
 }
@@ -25,27 +26,20 @@ open class Dictionary <out T: TermEntry> (
  * - きる, 772 (Verb-ru), 772 (Verb-ru), 12499
  * - ...
  */
-interface TermEntry {
+interface TermEntry<out Features> {
     val surfaceForm: String
     val leftId: Int
     val rightId: Int
     val cost: Int
+
+    val features: Features
 }
 
 typealias TermID = Int
-interface TermDictionary<out T: TermEntry> : Iterable<Pair<TermID, T>>{
-    operator fun get(id: TermID): T?
+interface TermDictionary<out TermFeatures> : Iterable<Pair<TermID, TermEntry<TermFeatures>>>{
+    operator fun get(id: TermID): TermEntry<TermFeatures>?
 
     fun size() : Int = this.asSequence().count()
-}
-
-open class TermEntryArray<T: TermEntry>(
-        private val entries: Array<T>
-) : TermDictionary<T> {
-    override fun get(id: TermID): T? = entries[id]
-    override fun size(): Int = entries.size
-    override fun iterator(): Iterator<Pair<TermID, T>> =
-            entries.indices.map { it to entries[it] }.iterator()
 }
 
 /**
@@ -63,13 +57,13 @@ interface ConnectionCost {
 /**
  * Unknown or Out-of-Vocabulary terms handling strategy
  */
-interface UnknownTermExtractionStrategy {
+interface UnknownTermExtractionStrategy<out TermFeatures> {
 
     /**
      * Extract unknown terms from `text` at `index`
      *
      * @param forceExtraction at least one term is expected to be extracted when this flag is enforced
      */
-    fun extractUnknownTerms(text: String, index: Int, forceExtraction: Boolean): Iterable<TermEntry>
+    fun extractUnknownTerms(text: String, index: Int, forceExtraction: Boolean): Iterable<TermEntry<TermFeatures>>
 }
 

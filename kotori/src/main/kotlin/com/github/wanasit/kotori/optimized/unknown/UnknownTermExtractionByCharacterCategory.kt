@@ -1,4 +1,4 @@
-package com.github.wanasit.kotori.optimized.dictionary
+package com.github.wanasit.kotori.optimized.unknown
 
 import com.github.wanasit.kotori.TermEntry
 import com.github.wanasit.kotori.UnknownTermExtractionStrategy
@@ -20,19 +20,19 @@ data class CharCategoryDefinition(
  * - Each category has a definition and extractable term entries
  * - The extraction considers the categories and their definitions of character at the index
  */
-class UnknownTermExtractionByCharacterCategory<T: TermEntry>(
+class UnknownTermExtractionByCharacterCategory<Features>(
         internal val charToCategories: Array<IntArray>,
         internal val categoryToDefinition: Array<CharCategoryDefinition>,
-        internal val categoryToTermEntries: Array<List<T>>
-) : UnknownTermExtractionStrategy {
+        internal val categoryToTermEntries: Array<List<TermEntry<Features>>>
+) : UnknownTermExtractionStrategy<Features> {
 
     companion object {
 
-        fun <T: TermEntry> fromUnoptimizedMapping(
+        fun <Features> fromUnoptimizedMapping(
                 charToCategories: Map<Char, List<CharCategory>?>,
                 categoryToDefinition: Map<CharCategory, CharCategoryDefinition>,
-                categoryToTermEntries: Map<CharCategory, List<T>?>
-        ) : UnknownTermExtractionByCharacterCategory<T> {
+                categoryToTermEntries: Map<CharCategory, List<TermEntry<Features>>?>
+        ) : UnknownTermExtractionByCharacterCategory<Features> {
 
             val charSize = 0xffff + 1;
 
@@ -50,24 +50,24 @@ class UnknownTermExtractionByCharacterCategory<T: TermEntry>(
             return UnknownTermExtractionByCharacterCategory(compactedCharToCategories, compactedDefinitionMapping, compactedTermEntryMapping)
         }
 
-        fun <T: TermEntry> copyOf(
-                other: UnknownTermExtractionByCharacterCategory<*>,
-                transformEntry: (TermEntry) -> T
-        ) : UnknownTermExtractionByCharacterCategory<T> {
+        fun <SrcFeatures, DstFeatures> copyOf(
+                other: UnknownTermExtractionByCharacterCategory<SrcFeatures>,
+                transformEntry: (TermEntry<SrcFeatures>) -> TermEntry<DstFeatures>
+        ) : UnknownTermExtractionByCharacterCategory<DstFeatures> {
             val termEntryMapping = other.categoryToTermEntries.map { it.map(transformEntry) }.toTypedArray()
             return UnknownTermExtractionByCharacterCategory(
                     other.charToCategories, other.categoryToDefinition, termEntryMapping)
         }
     }
 
-    data class ExtractedUnknownTermEntry<T: TermEntry>(
-            val unknownDictionaryEntry: T,
-            val term: String) : TermEntry by unknownDictionaryEntry {
+    data class ExtractedUnknownTermEntry<Features>(
+            val unknownDictionaryEntry: TermEntry<Features>,
+            val term: String) : TermEntry<Features> by unknownDictionaryEntry {
         override val surfaceForm: String = term
     }
 
-    override fun extractUnknownTerms(text: String, index: Int, forceExtraction: Boolean): Iterable<ExtractedUnknownTermEntry<T>> {
-        val results: MutableList<ExtractedUnknownTermEntry<T>> = mutableListOf()
+    override fun extractUnknownTerms(text: String, index: Int, forceExtraction: Boolean): Iterable<ExtractedUnknownTermEntry<Features>> {
+        val results: MutableList<ExtractedUnknownTermEntry<Features>> = mutableListOf()
         val charCategories = charToCategories[text[index].toInt()]
         for (charCategory in charCategories) {
             val categoryDefinition = categoryToDefinition[charCategory]

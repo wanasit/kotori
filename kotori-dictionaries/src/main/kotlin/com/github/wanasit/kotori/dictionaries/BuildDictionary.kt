@@ -1,8 +1,12 @@
 package com.github.wanasit.kotori.dictionaries
 
+import com.github.wanasit.kotori.AnyTokenizer
 import com.github.wanasit.kotori.Dictionary
 import com.github.wanasit.kotori.Tokenizer
-import com.github.wanasit.kotori.optimized.dictionary.OptimizedDictionary
+import com.github.wanasit.kotori.mecab.MeCabTermFeatures
+import com.github.wanasit.kotori.optimized.*
+import com.github.wanasit.kotori.optimized.unknown.UnknownTermExtractionByCharacterCategory
+import com.github.wanasit.kotori.utils.termEntries
 import java.io.File
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
@@ -11,18 +15,31 @@ import java.util.zip.GZIPOutputStream
 fun main() {
 
     val sourceDictionary = Dictionaries.Mecab.loadIpadic()
-    val optimizedDictionary = OptimizedDictionary.copyOf(sourceDictionary)
+
+    val terms = DefaultTermDictionary.copyOf(sourceDictionary.terms) {
+        DefaultTermEntry(it, DefaultTermFeatures())
+    }
+
+    val unknownExtraction = UnknownTermExtractionByCharacterCategory.copyOf(
+            sourceDictionary.unknownExtraction as UnknownTermExtractionByCharacterCategory<MeCabTermFeatures>
+    ) { termEntry ->
+        DefaultTermEntry(termEntry, DefaultTermFeatures())
+    }
+
+    val optimizedDictionary = DefaultDictionary(
+            terms, sourceDictionary.connection as DefaultConnectionCost, unknownExtraction
+    )
 
     val targetFilename = "../kotori/src/main/resources/default_dictionary.bin.gz"
     File(targetFilename).outputStream().use {
         GZIPOutputStream(it).use {
-            optimizedDictionary.writeToOutputStream(it)
+            DefaultDictionary.writeToOutputStream(it, optimizedDictionary)
         }
     }
 
     val writtenDictionary = File(targetFilename).inputStream().use {
         GZIPInputStream(it).use {
-            OptimizedDictionary.readFromInputStream(it)
+            DefaultDictionary.readFromInputStream(it)
         }
     }
 
@@ -38,7 +55,7 @@ fun checkDictionary(sourceDictionary: Dictionary<*>, dictionary: Dictionary<*>) 
     printTokenizeResultsComparision(tokenizerSource, tokenizerTarget, "GoogleがAndroid向け点字キーボードを発表")
 }
 
-fun printTokenizeResultsComparision(tokenizerSource: Tokenizer, tokenizerTarget: Tokenizer, text: String) {
+fun printTokenizeResultsComparision(tokenizerSource: AnyTokenizer, tokenizerTarget: AnyTokenizer, text: String) {
 
     println("Tokenize '$text'")
     println("> ${tokenizerSource.tokenize(text).map { it.text }}")

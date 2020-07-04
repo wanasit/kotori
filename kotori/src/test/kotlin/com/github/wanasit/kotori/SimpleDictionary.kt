@@ -11,7 +11,7 @@ typealias WordType = Int
  *     ...
  * }
  */
-fun simpleTermDictionary(init: SimpleTermDictionary.() -> Unit) : TermDictionary<TermEntry> {
+fun simpleTermDictionary(init: SimpleTermDictionary.() -> Unit) : TermDictionary<EmptyFeatures> {
     val termDictionary = SimpleTermDictionary()
     termDictionary.init()
     return termDictionary;
@@ -33,23 +33,27 @@ fun connectionTable(init: SimpleConnectionTable.() -> Unit) : ConnectionCost {
     return connectionCost;
 }
 
-class SimpleTermDictionary : TermDictionary<TermEntry> {
-    private val entries: MutableList<TermEntry> = mutableListOf();
+class EmptyFeatures
 
-    override fun get(id: Int): TermEntry? {
+class SimpleTermDictionary : TermDictionary<EmptyFeatures> {
+    private val entries: MutableList<TermEntry<EmptyFeatures>> = mutableListOf();
+
+    override fun get(id: Int): TermEntry<EmptyFeatures>? {
         return entries.get(id);
     }
 
-    override fun iterator(): Iterator<Pair<Int, TermEntry>> {
+    override fun iterator(): Iterator<Pair<Int, TermEntry<EmptyFeatures>>> {
         return entries.mapIndexed { i, e -> i to e}.iterator()
     }
 
     fun term(surfaceForm: String, wordType: WordType, cost: Int) {
-        entries.add(object : TermEntry {
+        entries.add(object : TermEntry<EmptyFeatures> {
             override val surfaceForm = surfaceForm
             override val leftId = wordType
             override val rightId = wordType
             override val cost = cost
+            override val features: EmptyFeatures
+                get() = EmptyFeatures()
         })
     }
 

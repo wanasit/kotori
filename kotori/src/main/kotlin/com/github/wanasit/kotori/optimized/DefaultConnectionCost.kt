@@ -1,4 +1,4 @@
-package com.github.wanasit.kotori.optimized.dictionary
+package com.github.wanasit.kotori.optimized
 
 import com.github.wanasit.kotori.ConnectionCost
 import com.github.wanasit.kotori.TermEntry
@@ -7,7 +7,7 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.lang.UnsupportedOperationException
 
-class ConnectionCostArray(
+class DefaultConnectionCost(
         val fromIdCardinality: Int,
         val toIdCardinality: Int,
         private val table: ShortArray = ShortArray(fromIdCardinality * toIdCardinality) { 0 }
@@ -31,7 +31,7 @@ class ConnectionCostArray(
 
     companion object {
 
-        fun copyOf(entries: Iterable<TermEntry>, connectionCost: ConnectionCost) : ConnectionCostArray {
+        fun copyOf(entries: Iterable<TermEntry<*>>, connectionCost: ConnectionCost) : DefaultConnectionCost {
             val maxLeftId = entries.map { it.leftId }.max()!!
             val maxRightId = entries.map { it.rightId }.max()!!
             return copyOf(maxRightId + 1, maxLeftId + 1) { leftId, rightId ->
@@ -39,8 +39,8 @@ class ConnectionCostArray(
             }
         }
 
-        fun copyOf(fromIdCardinality: Int, toIdCardinality: Int, connectionCost: (leftId:Int, rightId:Int) -> Int) : ConnectionCostArray {
-            val array = ConnectionCostArray(fromIdCardinality, toIdCardinality)
+        fun copyOf(fromIdCardinality: Int, toIdCardinality: Int, connectionCost: (leftId:Int, rightId:Int) -> Int) : DefaultConnectionCost {
+            val array = DefaultConnectionCost(fromIdCardinality, toIdCardinality)
             for (i in 0 until fromIdCardinality) {
                 for (j in 0 until toIdCardinality) {
                     array.put(i, j, connectionCost(i, j))
@@ -50,15 +50,15 @@ class ConnectionCostArray(
             return array
         }
 
-        fun readFromInputStream(inputStream: InputStream) : ConnectionCostArray {
-            return ConnectionCostArray(
+        fun readFromInputStream(inputStream: InputStream) : DefaultConnectionCost {
+            return DefaultConnectionCost(
                     IOUtils.readInt(inputStream), IOUtils.readInt(inputStream), IOUtils.readShortArray(inputStream))
         }
-    }
 
-    fun writeToOutputStream(outputStream: OutputStream) {
-        IOUtils.writeInt(outputStream, fromIdCardinality)
-        IOUtils.writeInt(outputStream, toIdCardinality)
-        IOUtils.writeShortArray(outputStream, table)
+        fun writeToOutputStream(outputStream: OutputStream, value: DefaultConnectionCost) {
+            IOUtils.writeInt(outputStream, value.fromIdCardinality)
+            IOUtils.writeInt(outputStream, value.toIdCardinality)
+            IOUtils.writeShortArray(outputStream, value.table)
+        }
     }
 }

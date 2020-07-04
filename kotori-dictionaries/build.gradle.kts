@@ -44,4 +44,9 @@ task<JavaExec>("downloadSudachiFullDict") {
     classpath = sourceSets["main"].runtimeClasspath
 }
 
-
+tasks.withType<Test> {
+    dependsOn("downloadMecabIpadic")
+    dependsOn("downloadMecabUnidic")
+    dependsOn("downloadSudachiSmallDict")
+    maxHeapSize = "4096m"
+}
