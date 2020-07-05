@@ -1,7 +1,8 @@
 import com.github.wanasit.kotori.Dictionary
 import com.github.wanasit.kotori.core.LatticeBasedTokenizer
 import com.github.wanasit.kotori.connectionTable
-import com.github.wanasit.kotori.simpleTermDictionary
+import com.github.wanasit.kotori.fakeTermDictionary
+import com.github.wanasit.kotori.fakeTermDictionaryWithoutFeature
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -10,7 +11,7 @@ class TestTokenizerWithDictionary{
 
     @Test fun testTokenizer() {
 
-        val termDictionary = simpleTermDictionary {
+        val termDictionary = fakeTermDictionaryWithoutFeature {
             term("そこで", CONJ, 10)
             term("そこ", NOUN, 40)
             term("で", VERB, 40)

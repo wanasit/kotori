@@ -1,5 +1,8 @@
 package com.github.wanasit.kotori
 
+import com.github.wanasit.kotori.optimized.PlainTermEntry
+import com.github.wanasit.kotori.optimized.PlainToken
+
 typealias WordType = Int
 
 /**
@@ -11,8 +14,14 @@ typealias WordType = Int
  *     ...
  * }
  */
-fun simpleTermDictionary(init: SimpleTermDictionary.() -> Unit) : TermDictionary<EmptyFeatures> {
-    val termDictionary = SimpleTermDictionary()
+fun <F> fakeTermDictionary(init: FakingTermDictionary<F>.() -> Unit) : TermDictionary<F> {
+    val termDictionary = FakingTermDictionary<F>()
+    termDictionary.init()
+    return termDictionary;
+}
+
+fun fakeTermDictionaryWithoutFeature(init: FakingTermDictionaryWithEmptyFeatures.() -> Unit): TermDictionary<PlainToken.EmptyFeatures> {
+    val termDictionary = FakingTermDictionaryWithEmptyFeatures()
     termDictionary.init()
     return termDictionary;
 }
@@ -27,34 +36,41 @@ fun simpleTermDictionary(init: SimpleTermDictionary.() -> Unit) : TermDictionary
  *     ...
  * }
  */
-fun connectionTable(init: SimpleConnectionTable.() -> Unit) : ConnectionCost {
-    val connectionCost = SimpleConnectionTable()
+fun connectionTable(init: FakeConnectionTable.() -> Unit) : ConnectionCost {
+    val connectionCost = FakeConnectionTable()
     connectionCost.init()
     return connectionCost;
 }
 
-class EmptyFeatures
+open class FakingTermDictionaryWithEmptyFeatures : FakingTermDictionary<PlainToken.EmptyFeatures>() {
+    fun term(surfaceForm: String, wordType: WordType, cost: Int) {
+        term(surfaceForm, wordType, cost, PlainToken.EmptyFeatures())
+    }
+}
 
-class SimpleTermDictionary : TermDictionary<EmptyFeatures> {
-    private val entries: MutableList<TermEntry<EmptyFeatures>> = mutableListOf();
+open class FakingTermDictionary<F> : TermDictionary<F> {
+    private val entries: MutableList<TermEntry<F>> = mutableListOf();
 
-    override fun get(id: Int): TermEntry<EmptyFeatures>? {
+    override fun get(id: Int): TermEntry<F>? {
         return entries.get(id);
     }
 
-    override fun iterator(): Iterator<Pair<Int, TermEntry<EmptyFeatures>>> {
+    override fun iterator(): Iterator<Pair<Int, TermEntry<F>>> {
         return entries.mapIndexed { i, e -> i to e}.iterator()
     }
 
-    fun term(surfaceForm: String, wordType: WordType, cost: Int) {
-        entries.add(object : TermEntry<EmptyFeatures> {
-            override val surfaceForm = surfaceForm
-            override val leftId = wordType
-            override val rightId = wordType
-            override val cost = cost
-            override val features: EmptyFeatures
-                get() = EmptyFeatures()
-        })
+    fun term(surfaceForm: String, leftId: Int, rightId: Int, cost: Int, features: F) {
+        entries.add(PlainTermEntry(
+                surfaceForm = surfaceForm,
+                leftId = leftId,
+                rightId = rightId,
+                cost = cost,
+                features = features
+        ))
+    }
+
+    fun term(surfaceForm: String, wordType: WordType, cost: Int, features: F) {
+        term(surfaceForm, wordType, wordType, cost, features)
     }
 
     val NOUN: WordType = 1
@@ -63,7 +79,7 @@ class SimpleTermDictionary : TermDictionary<EmptyFeatures> {
     val CONJ: WordType = 4
 }
 
-class SimpleConnectionTable() : ConnectionCost {
+class FakeConnectionTable : ConnectionCost {
 
     val BEGIN: WordType = 0
     val END: WordType = 0

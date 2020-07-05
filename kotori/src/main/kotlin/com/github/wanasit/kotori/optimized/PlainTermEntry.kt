@@ -2,7 +2,7 @@ package com.github.wanasit.kotori.optimized
 
 import com.github.wanasit.kotori.TermEntry
 
-class PlainTermEntry<Features>(
+data class PlainTermEntry<Features>(
         override val surfaceForm: String,
         override val leftId: Int,
         override val rightId: Int,

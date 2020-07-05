@@ -2,6 +2,7 @@ package com.github.wanasit.kotori.optimized
 
 import com.github.wanasit.kotori.Dictionary
 import com.github.wanasit.kotori.TermDictionary
+import com.github.wanasit.kotori.TermID
 import com.github.wanasit.kotori.optimized.unknown.DefaultUnknownTermExtraction
 import com.github.wanasit.kotori.optimized.unknown.UnknownTermExtractionByCharacterCategory
 import com.github.wanasit.kotori.utils.ResourceUtil
