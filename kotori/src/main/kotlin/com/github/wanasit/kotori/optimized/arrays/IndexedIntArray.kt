@@ -22,7 +22,7 @@ class IndexedIntArray(length: Int) {
         return indexSize[indexedValue] > 0
     }
 
-    inline fun accessMembersAtIndex(indexedValue: Int, apply: (Int) -> Unit) {
+    inline fun forEachMembersAt(indexedValue: Int, apply: (Int) -> Unit) {
         val size = indexSize[indexedValue]
         if (size == 0) {
             return

@@ -9,7 +9,7 @@ class TestIndexedIntArray {
 
     fun IndexedIntArray.getMemberAtIndex(index: Int): List<Int> {
         val members: MutableList<Int> = mutableListOf()
-        this.accessMembersAtIndex(index) { members.add(it) }
+        this.forEachMembersAt(index) { members.add(it) }
         return members
     }
 

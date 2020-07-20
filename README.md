@@ -45,7 +45,7 @@ You can also install Kotori via [Jitpack](https://jitpack.io/#wanasit/kotori).
 
 ### Dictionary 
 
-Kotori uses `mecab-ipadic-2.7.0-20070801` as the built-in dictionary.
+Kotori has a built-in dictionary, based-on `mecab-ipadic-2.7.0-20070801`.
 
 ```kotlin
 val dictionary = Dictionary.readDefaultFromResource()
@@ -54,7 +54,7 @@ val tokenizer = Tokenizer.create(dictionary)
 tokenizer.tokenize("お寿司が食べたい。")
 ```
 
-It works out-of-box with any Mecab dictionary. For example:
+However, it also works out-of-box with any Mecab dictionary. For example:
 * IPADIC ([2.7.0-20070801](http://atilika.com/releases/mecab-ipadic/mecab-ipadic-2.7.0-20070801.tar.gz))
 * UniDic ([2.1.2](http://atilika.com/releases/unidic-mecab/unidic-mecab-2.1.2_src.zip))
 * JUMANDIC ([7.0-20130310](http://atilika.com/releases/mecab-jumandic/mecab-jumandic-7.0-20130310.tar.gz))
@@ -66,10 +66,12 @@ val tokenizer = Tokenizer.create(dictionary)
 tokenizer.tokenize("お寿司が食べたい。")
 ```
 
+Note: [Sudachi](https://github.com/WorksApplications/Sudachi) dictionaries and plugins support are under development.
+
 ### Performance
 
 Kotori is heavily inspired by [Kuromoji](https://github.com/atilika/kuromoji) and [Sudachi](https://github.com/WorksApplications/Sudachi), 
-but its tokenization is optimized to be faster than other JVM-based tokenizers (based-on our unfair benchmark).
+but its tokenization is even faster than other JVM-based tokenizers (based-on our *probably unfair* benchmark).
 
 The following is statistic from tokenizing Japanese sentences from [Tatoeba](https://tatoeba.org/eng/) 
 (193,898 sentences entries, 3,561,854 total characters) on Macbook Pro 2020 (2.4 GHz 8-Core Intel Core i9).
@@ -94,7 +96,7 @@ but it has pretty good performance on Japanese in UTF-16.
 
 * **Kotori doesn't rely on any pre-built data structure** (e.g. `DoubleArrayTrie`). 
 It reads a dictionary as list-of-terms format and builds Trie just-in-time.
-This is a design decision to make Kotori open to multiple dictionary formats in exchange for some startup time.
+This is a design decision to make Kotori open to multiple dictionary formats in exchange for some bootup time.
 
 * Kotlin (written by the inexperience library author) is slower than Java, 
 mostly, because Kotlin's `Array<T?>` has some overhead comparing to Java's native `T[]`.

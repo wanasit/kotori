@@ -6,6 +6,11 @@ import java.io.FileOutputStream
 import java.net.URI
 import java.net.URL
 import java.nio.file.Paths
+import java.util.logging.Level
+import java.util.logging.Logger
+
+
+
 
 
 fun downloadIntoDirectory(dir: File, url: String): File {
@@ -24,6 +29,10 @@ fun downloadIntoDirectory(dir: File, url: String): File {
 
 fun extractIntoDirectory(dir: File, archivedFile: File) {
     println("Extracting '${archivedFile.path}' into '${dir.path}'")
+
+    // Disable warnning log for file permission
+    Logger.getLogger("org.rauschig.jarchivelib").level = Level.SEVERE
+
     val archiver = ArchiverFactory.createArchiver(archivedFile)
     archiver.extract(archivedFile, dir)
 }
