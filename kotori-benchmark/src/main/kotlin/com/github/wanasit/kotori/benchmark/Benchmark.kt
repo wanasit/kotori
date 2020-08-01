@@ -5,14 +5,10 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.wanasit.kotori.AnyTokenizer
-import com.github.wanasit.kotori.Dictionary
-import com.github.wanasit.kotori.TermEntry
 import com.github.wanasit.kotori.Tokenizer
-import com.github.wanasit.kotori.benchmark.dataset.LivedoorNewsDataset
-import com.github.wanasit.kotori.benchmark.dataset.TatoebaDataset
 import com.github.wanasit.kotori.benchmark.dataset.TextDatasetEntry
-import com.github.wanasit.kotori.dictionaries.Dictionaries
-import com.github.wanasit.kotori.sudachi.dictionary.SudachiDictionary
+import com.github.wanasit.kotori.benchmark.dataset.loadDatasetByName
+import com.github.wanasit.kotori.benchmark.dictionary.loadDictionaryByName
 import com.github.wanasit.kotori.utils.format
 import com.github.wanasit.kotori.utils.measureTimeMillisWithOutput
 import com.github.wanasit.kotori.utils.measureTimeNanoWithOutput
@@ -24,24 +20,9 @@ class Benchmark: CliktCommand() {
     val dictionary: String? by option().choice("ipadic", "sudachi-small")
 
     override fun run() {
-
-        val dataset = runAndPrintTimeMillis("Loading [${this.dataset}] dataset") {
-            when (this.dataset) {
-                "tatoeba" -> TatoebaDataset.loadJapaneseSentences()
-                "livedoor-news" -> LivedoorNewsDataset.loadDataset()
-                else -> throw UnsupportedOperationException()
-            }
-        }
-
+        val dataset = loadDatasetByName(this.dataset)
         val tokenizer = if (tokenizer == "kotori") {
-            val dictionary: Dictionary<*>? = runAndPrintTimeMillis("Loading [${this.dictionary?:"<default>"}] dictionary") {
-                when (this.dictionary) {
-                    "ipadic" -> Dictionaries.Mecab.loadIpadic()
-                    "sudachi-small" -> SudachiDictionary.readSystemDictionary(Dictionaries.Sudachi.smallDictionaryPath())
-                    else -> Dictionary.readDefaultFromResource()
-                }
-            }
-
+            val dictionary = loadDictionaryByName(this.dictionary ?: "default")
             runAndPrintTimeMillis("Building tokenizer with [${this.dictionary?:"<default>"}] dictionary") {
                 Tokenizer.create(dictionary ?: throw java.lang.IllegalStateException())
             }

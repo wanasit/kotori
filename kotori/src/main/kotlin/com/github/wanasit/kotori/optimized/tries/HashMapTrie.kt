@@ -17,7 +17,7 @@ class HashMapTrie : MutableDFA {
         if (nextState == DFA.NONE) {
             nonRootStateCount += 1;
 
-            transitionTable.add(mutableMapOf())
+            transitionTable.add(hashMapOf())
             transitionTable[state].put(input, nonRootStateCount)
 
             nextState = nonRootStateCount

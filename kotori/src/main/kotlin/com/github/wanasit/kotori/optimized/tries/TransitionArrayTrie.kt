@@ -5,7 +5,6 @@ import kotlin.math.max
 
 class TransitionArrayTrie(baseDFA: MutableDFA) : DFA {
 
-    private val NOT_USED = -1
     private var baseArray: IntArray
     private var transitionArray: IntArray
     private val rootTransition: IntArray
@@ -76,7 +75,7 @@ class TransitionArrayTrie(baseDFA: MutableDFA) : DFA {
         }
 
         val newSize: Int = max(index + 1, transitionArray.size * 2)
-        val newNext = IntArray(newSize) { NOT_USED }
+        val newNext = IntArray(newSize)
         transitionArray.copyInto(newNext)
         transitionArray = newNext
     }
