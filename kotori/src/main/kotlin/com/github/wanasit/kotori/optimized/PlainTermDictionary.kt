@@ -18,7 +18,14 @@ open class PlainTermDictionary<TermFeatures>(
                 other: TermDictionary<SrcFeatures>,
                 transformEntry: (TermEntry<SrcFeatures>) -> TermEntry<DstFeatures>
         ) : PlainTermDictionary<DstFeatures> {
-            val entries = other.map { transformEntry(it.second) }.toTypedArray()
+            return copyOf(other.map { it.second }, transformEntry)
+        }
+
+        fun <SrcFeatures, DstFeatures> copyOf(
+                other: List<TermEntry<SrcFeatures>>,
+                transformEntry: (TermEntry<SrcFeatures>) -> TermEntry<DstFeatures>
+        ) : PlainTermDictionary<DstFeatures> {
+            val entries = other.map(transformEntry).toTypedArray()
             return PlainTermDictionary(entries)
         }
     }

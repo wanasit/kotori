@@ -1,4 +1,5 @@
 import com.github.wanasit.kotori.Tokenizer
+import com.github.wanasit.kotori.optimized.DefaultTermFeatures.PartOfSpeech.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -52,6 +53,24 @@ class TestTokenizer{
         assertEquals("人", tokens[4].text)
         assertEquals("。", tokens[5].text)
         assertEquals("\t\n", tokens[6].text)
+    }
+
+    @Test fun testWithDates() {
+        run {
+            val tokens = tokenizer.tokenize("２００９年４月")
+            assertEquals(listOf("２００９", "年", "４", "月"), tokens.map { it.text })
+            assertEquals(listOf(NOUN, SUFFIX, NOUN, SUFFIX), tokens.map { it.features.partOfSpeech })
+        }
+
+        run {
+            val tokens = tokenizer.tokenize("２００９年４月２９日に")
+            assertEquals(listOf("２００９", "年", "４", "月", "２９", "日", "に"), tokens.map { it.text })
+        }
+
+        run {
+            val tokens = tokenizer.tokenize("2009年4月29日に")
+            assertEquals(listOf("2009", "年", "4", "月", "29", "日", "に"), tokens.map { it.text })
+        }
     }
 
     @Test fun testLongerText() {
