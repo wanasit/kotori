@@ -1,6 +1,8 @@
 package com.github.wanasit.kotori.mecab
 
 import com.github.wanasit.kotori.Dictionary
+import com.github.wanasit.kotori.TermDictionary
+import com.github.wanasit.kotori.TermEntry
 import com.github.wanasit.kotori.utils.ResourceUtil
 import java.nio.charset.Charset
 
@@ -9,18 +11,18 @@ const val FILE_NAME_TERM_DICTIONARY = "Adverb.csv"
 
 fun MeCabDictionary.readFromResource(
         namespace: String = DEFAULT_RESOURCE_NAMESPACE,
-        charset: Charset = MeCabDictionary.DEFAULT_CHARSET
+        charset: Charset = DEFAULT_CHARSET
 ) : Dictionary<MeCabTermFeatures> {
 
     val termDictionary = MeCabTermDictionary.readFromInputStream(
             ResourceUtil.readResourceAsStream(namespace, FILE_NAME_TERM_DICTIONARY), charset)
 
     val termConnection = MeCabConnectionCost.readFromInputStream(
-            ResourceUtil.readResourceAsStream(namespace, MeCabDictionary.FILE_NAME_CONNECTION_COST), charset)
+            ResourceUtil.readResourceAsStream(namespace, FILE_NAME_CONNECTION_COST), charset)
 
     val unknownTermStrategy = MeCabUnknownTermExtractionStrategy.readFromFileInputStreams(
-            ResourceUtil.readResourceAsStream(namespace, MeCabDictionary.FILE_NAME_UNKNOWN_ENTRIES),
-            ResourceUtil.readResourceAsStream(namespace, MeCabDictionary.FILE_NAME_CHARACTER_DEFINITION),
+            ResourceUtil.readResourceAsStream(namespace, FILE_NAME_UNKNOWN_ENTRIES),
+            ResourceUtil.readResourceAsStream(namespace, FILE_NAME_CHARACTER_DEFINITION),
             charset)
 
     return Dictionary(

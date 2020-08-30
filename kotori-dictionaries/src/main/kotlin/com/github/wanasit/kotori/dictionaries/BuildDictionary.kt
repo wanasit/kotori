@@ -18,7 +18,8 @@ const val TARGET_DICTIONARY_FILENAME = "../kotori/src/main/resources/default_dic
 
 fun main() {
 
-    val sourceDictionary = runAndPrintTimeMillis("Loading source dictionary") {
+    val sourceDictionary = runAndPrintTimeMillis(
+            "Loading source dictionary (MeCab IPADict)") {
         Dictionaries.Mecab.loadIpadic()
     }
 
@@ -35,6 +36,12 @@ fun main() {
             .filter { isNotDate(it) }
             .map { adjustTermCosts(it) }
     println("Filtered term entries from ${deduplicatedTermEntries.size} to ${filteredTermEntries.size}")
+
+    filteredTermEntries.forEach {
+        if (it.leftId != it.rightId) {
+            throw AssertionError("Unexpected case where leftId != rightId in the source: $it")
+        }
+    }
 
     val targetDictionary = runAndPrintTimeMillis("Building target dictionary") {
 
@@ -65,9 +72,13 @@ fun main() {
 
     println("Dictionary file size: ${ (File(TARGET_DICTIONARY_FILENAME).length().toDouble() / 1024).format() } KB")
 
-    val writtenDictionary = File(TARGET_DICTIONARY_FILENAME).inputStream().use {
-        GZIPInputStream(it).use {
-            DefaultDictionary.readFromInputStream(it)
+    val writtenDictionary = runAndPrintTimeMillis(
+            "Reading back the written dictionary") {
+
+        File(TARGET_DICTIONARY_FILENAME).inputStream().use {
+            GZIPInputStream(it).use {
+                DefaultDictionary.readFromInputStream(it)
+            }
         }
     }
 

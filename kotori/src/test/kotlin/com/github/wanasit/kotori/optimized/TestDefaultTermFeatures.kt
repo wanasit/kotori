@@ -16,27 +16,4 @@ class TestDefaultTermFeatures {
                 partOfSpeech = partOfSpeech
         ))
     }
-
-    @Test fun testReadWrite() {
-        val file = createTempFile()
-
-        val termEntries = fakeTermDictionary<DefaultTermFeatures> {
-            term("そこで", 17, 17, 10, PartOfSpeech.NOUN)
-            term("そこで", 18, 18, 100, PartOfSpeech.OTHER)
-            term("Wow!", 152, 152, 100, PartOfSpeech.INTERJECTION)
-        }.map { it.second }.toTypedArray()
-
-        file.outputStream().use {
-            DefaultTermFeatures.writeTermEntriesToOutput(it, termEntries)
-        }
-
-        val readTermEntries = file.inputStream().use {
-            DefaultTermFeatures.readTermEntriesFromInputStream(it)
-        }
-
-        assertArrayEquals(termEntries, readTermEntries)
-    }
-
-
-
 }

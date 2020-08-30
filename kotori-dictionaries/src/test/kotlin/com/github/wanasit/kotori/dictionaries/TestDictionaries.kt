@@ -1,5 +1,6 @@
 package com.github.wanasit.kotori.dictionaries
 
+import com.github.wanasit.kotori.utils.termEntries
 import org.junit.Test
 import kotlin.test.assertTrue
 

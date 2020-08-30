@@ -1,7 +1,7 @@
 package com.github.wanasit.kotori.optimized.unknown
 
 import com.github.wanasit.kotori.TermEntry
-import com.github.wanasit.kotori.UnknownTermExtractionStrategy
+import com.github.wanasit.kotori.optimized.DefaultTermEntry
 import com.github.wanasit.kotori.optimized.DefaultTermFeatures
 import com.github.wanasit.kotori.utils.IOUtils
 import java.io.InputStream
@@ -21,7 +21,7 @@ object DefaultUnknownTermExtraction {
         val categoryDefinitionFlattenArray = IOUtils.readShortArray(inputStream)
         val arraySizes = IOUtils.readIntArray(inputStream)
         val flattenCharToCategories = IOUtils.readIntArray(inputStream)
-        val flattenCategoryToTermEntries = DefaultTermFeatures.readTermEntriesFromInputStream(inputStream)
+        val flattenCategoryToTermEntries = DefaultTermEntry.readFromInputStream(inputStream)
 
         var index = 0
         val charToCategories: Array<IntArray> = Array(charcodeSize) {
@@ -35,7 +35,7 @@ object DefaultUnknownTermExtraction {
             val entries = flattenCategoryToTermEntries.copyOfRange(
                     index, index + arraySizes[charcodeSize + it]).toList()
             index += arraySizes[charcodeSize + it]
-            entries
+            entries as List<TermEntry<DefaultTermFeatures>>
         }
 
         val categoryToDefinition = Array(charCategorySize) {
@@ -78,7 +78,7 @@ object DefaultUnknownTermExtraction {
         IOUtils.writeShortArray(outputStream, categoryDefinitionFlattenArray)
         IOUtils.writeIntArray(outputStream, arraySizes)
         IOUtils.writeIntArray(outputStream, flattenCharToCategories)
-        DefaultTermFeatures.writeTermEntriesToOutput(outputStream, flattenCategoryToTermEntries.toTypedArray())
+        DefaultTermEntry.writeToOutputAsDefaultTermEntries(outputStream, flattenCategoryToTermEntries.toTypedArray())
     }
 }
 

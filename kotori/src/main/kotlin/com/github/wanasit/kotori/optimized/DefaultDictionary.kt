@@ -10,8 +10,6 @@ import com.github.wanasit.kotori.utils.termEntries
 import java.io.InputStream
 import java.io.OutputStream
 
-
-
 class DefaultDictionary(
         override val terms: TermDictionary<DefaultTermFeatures>,
         override val connection: PlainConnectionCostTable,
@@ -32,7 +30,7 @@ class DefaultDictionary(
         fun readFromInputStream(inputStream: InputStream) : DefaultDictionary {
             val unknownExtraction = DefaultUnknownTermExtraction.readFromInputStream(inputStream)
             val connection = PlainConnectionCostTable.readFromInputStream(inputStream)
-            val termEntries = DefaultTermFeatures.readTermEntriesFromInputStream(inputStream)
+            val termEntries = DefaultTermEntry.readFromInputStream(inputStream)
 
             return DefaultDictionary(PlainTermDictionary(termEntries), connection, unknownExtraction)
         }
@@ -41,7 +39,7 @@ class DefaultDictionary(
             val termEntries = value.termEntries.toTypedArray()
             DefaultUnknownTermExtraction.writeToOutputStream(outputStream, value.unknownExtraction)
             PlainConnectionCostTable.writeToOutputStream(outputStream, value.connection)
-            DefaultTermFeatures.writeTermEntriesToOutput(outputStream, termEntries)
+            DefaultTermEntry.writeToOutputAsDefaultTermEntries(outputStream, termEntries)
         }
     }
 }

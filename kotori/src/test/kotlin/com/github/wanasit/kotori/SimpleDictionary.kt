@@ -44,7 +44,7 @@ fun connectionTable(init: FakeConnectionTable.() -> Unit) : ConnectionCost {
 
 open class FakingTermDictionaryWithEmptyFeatures : FakingTermDictionary<PlainToken.EmptyFeatures>() {
     fun term(surfaceForm: String, wordType: WordType, cost: Int) {
-        term(surfaceForm, wordType, cost, PlainToken.EmptyFeatures())
+        term(surfaceForm, wordType, cost, PlainToken.EMPTY_FEATURES)
     }
 }
 
